@@ -18,6 +18,9 @@ package com.example.k5_iot_springboot.이론;
 */
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 // 1. 전통적인 자바 프로그래밍 방식
@@ -92,7 +95,49 @@ class BookStore2 {
     : 애플리케이션 내에서 객체(빈, Bean)의 생명 주기와 설정을 관리함
     - 제어의 역전을 실현, 의존성 주입을 지원함
 
+ 2. 빈(Bean)
+    : 스프링 컨테이너가 관리하는 객체
+    - 등록 방식
+        >> 컴포넌트 스캔 기반 @Component (클래스 단위 등록)
+            (+ 특화 어노테이션 @Controller, @Service, @Repository 등)
+                : 내부에 @Component를 포함함
+
+        >> 자바 설정 기반 @Configuration 클래스 안에 @Bean 메서드로 수동 등록하는 방식이 있음 (메서드 단위 등록)
+
+    - 네이밍 규칙
+        >> 클래스명의 첫 글자를 소문자로 바꾼 이름이 기본 빈 이름임
+        EX) Book -> book, BookStore -> booStore 등
+            이름 설정 @Component("bookSpecial") 이렇게 이름도 지을 수 있음
+
  */
+
+@Configuration
+class ExampleConfig {
+    @Bean
+    public void ExampleBean() {
+        System.out.println("예시 빈 등록");
+    }
+}
+
+
+/*
+* === 의존성 주입 방식(생성자, 필드, 세터) ===
+*
+* 1) 생성자 주입 방식 (권장)
+*   - 불변 보장(Final 가능)
+*   - 순환 참조 조기 방지 가능
+*   - 테스트 용이성
+*   - 필수 의존성을 보장함(주입 없이는 인스턴스 생성이 불가능함)
+*
+* 2) 필드 주입 방식
+*   - 테스트가 어려움
+*   - 순환 참조를 숨김
+*   - 불변 보장 불가능(final 키워드 사용못함)
+*
+* 3) 세터 주입 방식
+*   - 불변성 약화, 객체가 불완전 상태로 생성될 가능성이 존재함
+*
+* */
 
 
 public class E_IoC_DI {
