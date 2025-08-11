@@ -11,3 +11,10 @@ create database if not exists k5_iot_springboot
 use k5_iot_springboot;
 
 
+# 0811(A_Test)
+Create table if not exists test(
+	id bigint primary key auto_increment,
+    name varchar(50) not null
+);
+
+select * from test;

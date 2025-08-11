@@ -111,9 +111,9 @@ class BookStore2 {
 
  */
 
-@Configuration
+//@Configuration
 class ExampleConfig {
-    @Bean
+//    @Bean
     public void ExampleBean() {
         System.out.println("예시 빈 등록");
     }
