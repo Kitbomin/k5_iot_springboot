@@ -18,4 +18,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface A_TestRepository extends JpaRepository<A_Test, Long> {
+//    A_Test save(A_Test test); => 이거 이미 내장 되어있음 / 기본 CRUD가 내장되어있는 상태라 생각하면 됨
 }

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor // 생성자 주입 대신에 이것도 많이 씀
@@ -20,26 +21,36 @@ public class A_TestServiceImpl implements A_TestService {
 
     @Override
     public A_Test createTest(A_Test test) {
-        return null;
+        return testRepository.save(test);
     }
 
     @Override
     public List<A_Test> getAllTests() {
-        return List.of();
+        return testRepository.findAll();
     }
 
     @Override
     public A_Test getTestByTestId(Long testId) {
-        return null;
+        Optional<A_Test> optionalTestEntity = testRepository.findById(testId);
+
+        A_Test test = optionalTestEntity.orElseThrow(()-> new RuntimeException("해당 ID를 가진 데이터가 없습니다" + testId));
+
+        return test;
     }
 
     @Override
     public A_Test updateTest(Long testId, A_Test test) {
-        return null;
+        A_Test originalTest = getTestByTestId(testId);
+
+        originalTest.setName(test.getName());
+
+        A_Test updatedTest = testRepository.save(originalTest);
+
+        return updatedTest;
     }
 
     @Override
     public void deleteTest(Long testId) {
-
+        testRepository.deleteById(testId);
     }
 }
