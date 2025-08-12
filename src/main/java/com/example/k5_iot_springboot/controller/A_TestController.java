@@ -29,21 +29,40 @@ public class A_TestController {
     @Autowired // 필드 주입 방식: 필드에 해당 DS를 삽입 시켜줌 / 많이 쓰이진 않음
     A_TestService testService;
 
+
+    // @메서드Mapping("추가 URI 지정")
+    // : 메서드(POST/GET/PUT/DELETE) + localhost:8080/RequestMapping 경로/추가 URI
     @PostMapping  //어떤 동작을 할건지 명시 해줘야함
     public A_Test createTest(@RequestBody A_Test test) {
         A_Test result = testService.createTest(test);
         return result;
     }
 
+
+    // 요청 구조: HTTP 메서드 + URI 경로 -> URI 자원에 어떠한 HTTP 동작을 실행할 것인지 명시 해서 요청함
     @GetMapping("/all")
     public List<A_Test> getAllTests() {
         List<A_Test> result = testService.getAllTests();
         return result;
     }
 
-    @GetMapping("/")
-    public 
+    @GetMapping("/{testId}")
+    public A_Test getTestByTestId(@PathVariable Long testId) {
+        A_Test result = testService.getTestByTestId(testId);
+        return result;
+    }
 
+
+    @PutMapping("/{testId}")
+    public A_Test updateTest(@PathVariable Long testId, @RequestBody A_Test test) {
+        A_Test result = testService.updateTest(testId, test);
+        return result;
+    }
+
+    @DeleteMapping("/{testId}")
+    public void deleteTest(@PathVariable Long testId) {
+        testService.deleteTest(testId);
+    }
 
 
 }
