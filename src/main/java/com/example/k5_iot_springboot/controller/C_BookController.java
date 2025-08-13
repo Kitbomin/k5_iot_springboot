@@ -1,6 +1,7 @@
 package com.example.k5_iot_springboot.controller;
 
 
+import com.example.k5_iot_springboot.common.constants.ApiMappingPattern;
 import com.example.k5_iot_springboot.dto.C_Book.BookCreateRequestDto;
 import com.example.k5_iot_springboot.dto.C_Book.BookResponseDto;
 import com.example.k5_iot_springboot.dto.C_Book.BookUpdateRequestDto;
@@ -15,11 +16,17 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/books")
+@RequestMapping(ApiMappingPattern.Books.ROOT)
 @RequiredArgsConstructor
 public class C_BookController {
 
     private final C_BookService bookService;
+
+    private static final String BOOK_BY_ID = "/{id}";
+    private static final String BOOK_SEARCH_BY_TITLE = "/search/title";
+    private static final String BOOK_CATEGORY = "/category/{category}";
+
+
 
     // 1. 기본 CRUD
 
@@ -41,7 +48,7 @@ public class C_BookController {
     }
 
     // 3) Read - ByID
-    @GetMapping("/{id}")
+    @GetMapping(BOOK_BY_ID)
     public ResponseEntity<ResponseDto<BookResponseDto>> getBookById(@PathVariable Long id){
         ResponseDto<BookResponseDto> result = bookService.getBookById(id);
 
@@ -50,7 +57,7 @@ public class C_BookController {
 
 
     // 4) Update
-    @PutMapping("/{id}")
+    @PutMapping(BOOK_BY_ID)
     public ResponseEntity<ResponseDto<BookResponseDto>> updateBook(
             @PathVariable Long id,
             @RequestBody BookUpdateRequestDto dto
@@ -61,7 +68,7 @@ public class C_BookController {
     }
 
     // 5) Delete
-    @DeleteMapping("/{id}")
+    @DeleteMapping(BOOK_BY_ID)
     public ResponseEntity<ResponseDto<Void>> deleteBook(@PathVariable Long id) {
         bookService.deleteBook(id);
 
@@ -87,7 +94,7 @@ public class C_BookController {
     // >> enum 타입같은 제한된 값에 주로 사용됨
 
     // 제목에 특정 단어가 포함된 책 조회
-    @GetMapping("/search/title")
+    @GetMapping(BOOK_SEARCH_BY_TITLE)
     public ResponseEntity<ResponseDto<List<BookResponseDto>>> getBooksByTitleContaining (@RequestParam String keyword) //경로 값에 ? 이후의 데이터를 키- 값 쌍으로 추출되는 값 (? 키 = 값)
      //>> 항상 문자열로 반환 (숫자형은 int, long으로 자동 변환)
      // cf) 숫자로 변환할 수 없는 데이터 전달 시 400 Bad Request 발생
@@ -99,7 +106,7 @@ public class C_BookController {
 
 
     // 카테고리별 책 조회
-    @GetMapping("/category/{category}")
+    @GetMapping(BOOK_CATEGORY)
     public ResponseEntity<ResponseDto<List<BookResponseDto>>> getBooksByCategory(@PathVariable C_Category category) {
         ResponseDto<List<BookResponseDto>> books = bookService.getBooksByCategory(category);
 
