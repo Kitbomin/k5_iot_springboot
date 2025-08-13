@@ -29,3 +29,28 @@ create table if not exists students(
 );
 
 select * from students;
+
+
+#0813(C_Book)
+create table if not exists books(
+	id bigint primary key auto_increment,
+    writer varchar(50) not null,
+    title varchar(100) not null,
+    content varchar(500) not null,
+    category varchar(20) not null,
+    # 자바 enum 데이터 처리
+    # : DB 에서는 varchar(문자열) 로 관리 + check 제약 조건으로 문자 제한 
+    
+    constraint chk_book_category CHECK (category IN ('NOVEL', 'ESSAY', 'POEM', 'MAGAZINE')),
+    
+    # 같은 저자 + 동일 제목 중복 저장 방지 
+    constraint uk_book_writer_title unique (writer, title)
+);
+select * from books;
+
+
+
+
+
+
+
