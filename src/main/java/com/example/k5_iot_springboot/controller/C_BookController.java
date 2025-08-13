@@ -60,10 +60,10 @@ public class C_BookController {
 
     // 5) Delete
     @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseDto<BookResponseDto>> deleteBook(@PathVariable Long id) {
-        ResponseDto<BookResponseDto> result = bookService.deleteBook(id);
+    public ResponseEntity<ResponseDto<Void>> deleteBook(@PathVariable Long id) {
+        bookService.deleteBook(id);
 
-        return ResponseEntity.ok(result);
+        return ResponseEntity.noContent().build();
     }
 
 }

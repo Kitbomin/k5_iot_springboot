@@ -16,5 +16,5 @@ public interface C_BookService {
 
     ResponseDto<BookResponseDto> updateBook(Long id, BookUpdateRequestDto dto);
 
-    ResponseDto<BookResponseDto> deleteBook(Long id);
+    ResponseDto<Void> deleteBook(Long id);
 }
