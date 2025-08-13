@@ -5,6 +5,7 @@ import com.example.k5_iot_springboot.dto.C_Book.BookResponseDto;
 import com.example.k5_iot_springboot.dto.C_Book.BookUpdateRequestDto;
 import com.example.k5_iot_springboot.dto.ResponseDto;
 import com.example.k5_iot_springboot.entity.C_Book;
+import com.example.k5_iot_springboot.entity.C_Category;
 import com.example.k5_iot_springboot.repository.C_BookRepository;
 import com.example.k5_iot_springboot.service.C_BookService;
 import lombok.RequiredArgsConstructor;
@@ -92,6 +93,50 @@ public class C_BookServiceImpl implements C_BookService {
         }catch (Exception e) {
             return ResponseDto.setFailed("책 삭제 중 문제 발생: " +e.getMessage());
         }
+    }
+
+    @Override
+    public ResponseDto<List<BookResponseDto>> getBooksByTitleContaining(String keyword) {
+        List<BookResponseDto> data = null;
+
+        if (keyword == null || keyword.isEmpty()) {
+            return ResponseDto.setFailed("검색 키워드를 입력해주세요.");
+        }
+
+        List<C_Book> found = bookRepository.findByTitleContaining(keyword);
+
+        if (found.isEmpty()) {
+            return ResponseDto.setFailed("검색 결과가 없습니다.");
+        }
+
+        data = found.stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+
+        return ResponseDto.setSuccess("SUCCESS", data);
+    }
+
+
+
+    @Override
+    public ResponseDto<List<BookResponseDto>> getBooksByCategory(C_Category category) {
+        List<BookResponseDto> data = null;
+
+        if (category == null) {
+            return ResponseDto.setFailed("카테고리를 선택해주세요.");
+        }
+
+        List<C_Book> found = bookRepository.findByCategory(category);
+
+        if (found.isEmpty()) {
+            return ResponseDto.setFailed("검색 결과가 없습니다.");
+        }
+
+        data = found.stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+
+        return ResponseDto.setSuccess("SUCCESS", data);
     }
 
 
