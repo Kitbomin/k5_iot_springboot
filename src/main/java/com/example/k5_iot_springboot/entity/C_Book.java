@@ -9,9 +9,12 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "books",
-        uniqueConstraints = {@UniqueConstraint(name = "uk_book_writer_title",
-                columnNames = {"writer", "title"})}
-        )
+        uniqueConstraints = {@UniqueConstraint(
+                                name = "uk_book_writer_title",
+                                columnNames = {"writer", "title"}
+                                )
+                            }
+                        )
 @Getter
 @Setter
 @NoArgsConstructor
