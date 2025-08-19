@@ -2,7 +2,12 @@ package com.example.k5_iot_springboot.repository;
 
 import com.example.k5_iot_springboot.entity.D_Post;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
 
 /*
 * Post 와 Comment의 관계가 1:N 의 관계
@@ -30,7 +35,7 @@ import org.springframework.stereotype.Repository;
 *       >> 총 20번 실행을 하게 됨
 *
 * 1번째 쿼리(1) + 2번째 쿼리(N)
-*   >> 1+N 쿼리 실행 문제 발생 
+*   >> 1+N 쿼리 실행 문제 발생
 *
 * */
 
@@ -38,6 +43,24 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface D_PostRepository extends JpaRepository<D_Post, Long> {
     // 게시글 조회 + 댓글까지 즉시 로딩
+
+    // 댓글까지 즉시 로딩
+    @Query("""
+        select distinct p 
+        from D_Post p 
+            left join fetch p.comments c 
+        where p.id = :id
+""")
+    Optional<D_Post> findByIdWithComments(@Param("id") Long id);
+
+    // 전체 조회(댓글 제외)
+    @Query("""
+        select p
+        from D_Post p
+            order by p.id desc 
+""")
+    List<D_Post> findAllOrderByIdDesc();
+
 
 
 }

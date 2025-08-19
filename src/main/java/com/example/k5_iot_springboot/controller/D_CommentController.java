@@ -37,7 +37,7 @@ public class D_CommentController {
 
     // 2) 댓글 수정
     // [PUT] /api/v1/posts/{postId}/comments/{commentId}
-    @PutMapping(ApiMappingPattern.Comments.BY_ID)
+    @PutMapping(ApiMappingPattern.Comments.ID_ONLY) // => /api/v1/posts/{postId}/comments/api/v1/posts/{postId}/comments/{commentId} 이래 나와버림
     public ResponseEntity<ResponseDto<CommentResponseDto>> updateComment(
             @PathVariable("postId") @Positive(message = "postID는 1 이상의 정수여야합니다.") Long postId,
             @PathVariable("commentId") @Positive(message = "commentId는 1 이상의 정수여야합니다.") Long commentId,
@@ -49,7 +49,7 @@ public class D_CommentController {
 
     // 3) 댓글 삭제
     // [DELETE] /api/v1/posts/{postId}/comments/{commentId}
-    @DeleteMapping(ApiMappingPattern.Comments.BY_ID)
+    @DeleteMapping(ApiMappingPattern.Comments.ID_ONLY)
     public ResponseEntity<ResponseDto<CommentResponseDto>> deleteComment(
             @PathVariable("postId") @Positive(message = "postID는 1 이상의 정수여야합니다.") Long postId,
             @PathVariable("commentId") @Positive(message = "commentId는 1 이상의 정수여야합니다.") Long commentId
