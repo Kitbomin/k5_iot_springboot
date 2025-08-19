@@ -18,6 +18,36 @@ public class ApiMappingPattern {
 
     }
 
+    // == 2. 게시글(D_Post) == //
+    public static final class Posts {
+        private Posts() {}
+
+        public static final String ROOT = BASE + "/posts";
+
+        public static final String BY_ID = ROOT + "/{postId}";
+    }
+
+    // == 3. 댓글(D_Comment) == //
+    /*
+    * RESTful API 설계
+    *   - 현재 구조) 댓글(Comment)가 게시글(Post) 엔티티에 포함되어 있음 -> 1 : N 의 관계를 가지고 있음 => 하위 댓글이 상위 게시글에 종속되도록 설계해야함
+    *
+    *   - 종속된 데이터에 대해 하위 리소스 표현을 사용
+    *       : 댓글의 CRUD는 게시글 하위 리소스로 표현함
+    *
+    *       1) 댓글 생성(POST)  : /api/v1/posts/{postId}/comments
+    * -- 댓글 조회가 없는 이유는 따로 조회하는 페이지가 없기 때문
+    *       2) 댓글 수정(PUT)   : /api/v1/posts/{postId}/comments/{commentId}
+    *       3) 댓글 삭제(DELETE): /api/v1/posts/{postId}/comments/{commentId}
+    *
+    * */
+    public static final class Comments {
+        private Comments() {}
+
+        public static final String ROOT = Posts.BY_ID + "/comments";
+        public static final String BY_ID = ROOT + "/{commentId}";
+    }
+
 
     public static final String BOOK_API = "/api/v1/books";
 
