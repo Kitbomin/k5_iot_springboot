@@ -36,11 +36,11 @@ public class D_PostController {
 
 
     // 2) 게시글 단건 조회(댓글 포함)
-    @GetMapping(ApiMappingPattern.Posts.BY_ID)
+    @GetMapping(ApiMappingPattern.Posts.ID_ONLY)
     public ResponseEntity<ResponseDto<PostDetailResponseDto>> getPostById(
-            @PathVariable Long PostId
+            @PathVariable Long postId
     ) {
-        ResponseDto<PostDetailResponseDto> response = postService.getPostById(PostId);
+        ResponseDto<PostDetailResponseDto> response = postService.getPostById(postId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -54,23 +54,23 @@ public class D_PostController {
     }
 
     // 4) 게시글 수정(완전 교체 - PUT)
-    @PutMapping(ApiMappingPattern.Posts.BY_ID)
+    @PutMapping(ApiMappingPattern.Posts.ID_ONLY)
     public ResponseEntity<ResponseDto<PostDetailResponseDto>> updatePost(
-            @PathVariable Long PostId,
+            @PathVariable Long postId,
             @Valid @RequestBody PostUpdateRequestDto dto
             ) {
-        ResponseDto<PostDetailResponseDto> response = postService.updatePost(PostId, dto);
+        ResponseDto<PostDetailResponseDto> response = postService.updatePost(postId, dto);
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
 
     // 5) 게시글 삭제
     // : 규격 통일을 위한 200 OK + ResponseDto<Void> 반환
-    @DeleteMapping(ApiMappingPattern.Posts.BY_ID)
+    @DeleteMapping(ApiMappingPattern.Posts.ID_ONLY)
     public ResponseEntity<ResponseDto<Void>> deletePost(
-            @PathVariable Long PostId
+            @PathVariable Long postId
     ) {
-        ResponseDto<Void> response = postService.deletePost(PostId);
+        ResponseDto<Void> response = postService.deletePost(postId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
