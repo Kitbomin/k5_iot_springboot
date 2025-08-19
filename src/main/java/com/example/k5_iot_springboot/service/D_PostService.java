@@ -19,4 +19,6 @@ public interface D_PostService {
     ResponseDto<PostDetailResponseDto> updatePost(Long id, @Valid PostUpdateRequestDto dto);
 
     ResponseDto<Void> deletePost(Long id);
+
+    ResponseDto<List<PostListResponseDto>> getPostsByAuthor(String author);
 }

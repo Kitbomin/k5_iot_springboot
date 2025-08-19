@@ -12,8 +12,10 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +27,15 @@ public class D_PostServiceImpl implements D_PostService {
     @Override
     @Transactional // 쓰기 트랜잭션
     public ResponseDto<PostDetailResponseDto> createPost(PostCreateRequestDto dto) {
-        D_Post post = D_Post.create(dto.title(), dto.content(), dto.author());
+
+        // dto 자체가 null인지 즉시 방어(null인 경우 NPE 발생) => 객체에 대한 검증임
+        Objects.requireNonNull(dto, "PostCreateRequestDto must not be null");
+
+        String title = dto.title().trim();
+        String content = dto.content().trim();
+        String author = dto.author().trim();
+
+        D_Post post = D_Post.create(title, content, author);
         D_Post saved = postRepository.save(post);
 
         return ResponseDto.setSuccess("SUCCESS", PostDetailResponseDto.from(saved));
@@ -34,7 +44,9 @@ public class D_PostServiceImpl implements D_PostService {
 
     @Override
     public ResponseDto<PostDetailResponseDto> getPostById(Long id) {
-        D_Post post = postRepository.findByIdWithComments(id)
+        Long pid = requirePositiveId(id);
+
+        D_Post post = postRepository.findByIdWithComments(pid)
                 .orElseThrow(() -> new EntityNotFoundException("해당 id의 게시글을 찾을 수 없습니다."));
 
         return ResponseDto.setSuccess("SUCCESS", PostDetailResponseDto.from(post));
@@ -56,6 +68,10 @@ public class D_PostServiceImpl implements D_PostService {
     @Override
     @Transactional
     public ResponseDto<PostDetailResponseDto> updatePost(Long id, PostUpdateRequestDto dto) {
+        Objects.requireNonNull(dto, "PostUpdateRequestDto must not be null");
+        Long pid = requirePositiveId(id);
+
+
         D_Post post = postRepository.findByIdWithComments(id)
                 .orElseThrow(()-> new EntityNotFoundException("해당 id의 게시글을 찾을 수 없습니다."));
 
@@ -78,4 +94,31 @@ public class D_PostServiceImpl implements D_PostService {
         postRepository.delete(post);
         return ResponseDto.setSuccess("SUCCESS", null);
     }
+
+    @Override
+    public ResponseDto<List<PostListResponseDto>> getPostsByAuthor(String author) {
+        return null;
+    }
+
+
+    // === 내부 유틸 메서드 === //
+    private Long requirePositiveId(Long id) {
+        if (id == null || id <= 0) throw new IllegalArgumentException("id는 반드시 양수여야합니다.");
+        return id;
+    }
+
+    private String requireNonBlank(String s, String fieldName) {
+        if (!StringUtils.hasText(s)) throw new IllegalArgumentException(fieldName + " 비워질 수 없습니다.");
+        // StringUtils.hasText(s)
+        // : Spring Framework 에서 제공하는 메서드
+        // - 문자열이 "의미있는 글자" 를 가지고 있는지를 확인 -> 어떻게?
+
+        // hasText(s)
+        // - null 이면 false
+        // - s의 길이가 0이면 false
+        // - s가 공백 문자만 있으면 false
+        // >> 그 외의 실제 텍스트가 있으면 true를 반환
+        return s;
+    }
+
 }

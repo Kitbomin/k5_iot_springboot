@@ -74,5 +74,20 @@ public class D_PostController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    // =================================================== //
+
+    // 6) 특정 작성자의 모든 게시글 조회
+    @GetMapping("/author/{author}")
+    public ResponseEntity<ResponseDto<List<PostListResponseDto>>> getPostsByAuthor(
+            @PathVariable String author
+    ){
+        ResponseDto<List<PostListResponseDto>> response = postService.getPostsByAuthor(author);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    // 7) 특정 키워드로 제목 검색 조회
+
+    // 8) 댓글이 가장 많은 상위 5개의 게시글 조회
+
 
 }
