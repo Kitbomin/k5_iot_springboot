@@ -46,6 +46,7 @@ public class D_PostServiceImpl implements D_PostService {
         List<D_Post> posts = postRepository.findAllOrderByIdDesc(); //최신 순 반환
         List<PostListResponseDto> result = posts.stream()
                 .map(PostListResponseDto::from)
+                .map(dto -> dto.summerize(10))
                 .toList();
 
         return ResponseDto.setSuccess("SUCCESS", result);
