@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(ApiMappingPattern.Posts.ROOT)
 @RequiredArgsConstructor
@@ -46,8 +48,8 @@ public class D_PostController {
     // 3) 게시글 전체 조회(댓글 제외)
     // : 페이징이 필요한 경우 page/size 파라미터 추가 OR Pageable 적용
     @GetMapping
-    public ResponseEntity<ResponseDto<PostListResponseDto>> getAllPosts() {
-        ResponseDto<PostListResponseDto> response = postService.getAllPosts();
+    public ResponseEntity<ResponseDto<List<PostListResponseDto>>> getAllPosts() {
+        ResponseDto<List<PostListResponseDto>> response = postService.getAllPosts();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
