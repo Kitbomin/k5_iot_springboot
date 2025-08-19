@@ -109,7 +109,7 @@ public class D_Post {
     *   : 두 엔티티가 서로 참조하는 관계를 의미
     *   - Post 가 여러 개의 Comment 를 가짐 -> @OneToMany
     *   - Comment가 하나의 Post에 속함 -> @ManyToOne
-    * */
+    **/
 
     public void addComment(D_Comment comment) {
         if (comment == null) return;

@@ -49,7 +49,43 @@ create table if not exists books(
 select * from books;
 
 
+# 0819(D_Post, D_Comment)
+create table if not exists `posts`(
+	`id` 		bigint not null auto_increment,
+    `title` 	varchar(200) not null comment '게시글 제목',
+    `content` 	longtext not null comment '게시글 내용', -- @Lob 매핑 대응 
+    `author` 	varchar(100) not null comment '작성자 표시명 또는 ID',
+    
+    primary key(`id`),
+    key `idx_post_author` (`author`) 
+) engine=InnoDB
+  default charset = utf8mb4
+  collate = utf8mb4_unicode_ci
+  comment = '게시글';
 
+create table if not exists `comments`(
+	`id` 		bigint not null auto_increment,
+    `post_id` 	bigint not null comment 'posts.id FK',
+    `content` 	varchar(1000) not null comment '댓글 내용',
+    `commenter` varchar(100) not null comment '댓글 작성자 표시명 또는 ID',
+    
+    primary key (`id`),
+    key `idx_comment_post_id` (`post_id`),
+    key `idx_comment_commenter` (`commenter`),
+    
+    constraint `fk_comment_post`
+		foreign key(`post_id`) references `posts`(`id`) 	
+			on delete cascade 
+			on update cascade # 무결성을 위한 친구임 
+                                                        
+)engine=InnoDB
+ default charset = utf8mb4
+ collate = utf8mb4_unicode_ci
+ comment = '댓글';
+
+select * from posts;
+
+select * from comments;
 
 
 
