@@ -82,8 +82,52 @@ public class D_Post {
     }
 
 
+    // 수정 메서드
     // 이걸 하는 이유는 @Setter 설정을 안해서
     public void changeTitle(String title) {this.title = title;}
     public void changeContent(String content) {this.content = content;}
+
+
+    // === 양방향 연관관계 편의 메서드(중복 방지 포함) === //
+
+    /*
+    * 연관관계 메서드
+    * : Comment 를 Post 에 추가/삭제 할 때 사용함
+    *   - Comments 리스트에 추가/삭제를 하면
+    *       >> 해당 Comment 의 post 필드에 현재 Post 객체를 생성함
+    *
+    * -> 이걸 왜함?
+    * - 해당 설정을 하지 않으면 JPA의 영속성 컨텍스트가 양방향 관계를 완전히 이해하지 못함
+    *
+    * cf) 영속성 컨텍스트
+    *   : JPA 에서 엔티티 객체를 연구, 저장하는 환경을 의미함
+    *   - 엔티티 매니저에 의해 관리, save(), remove(), find() 와 같은 작업을 수행함
+    *   - 영속성 컨텍스트에 저장된 엔티티는 1차 캐시 공간에 보관됨
+    *       >> 트랜잭션이 끝날 때 실제 DB에 반영함
+    *
+    * cf) 양방향 관계
+    *   : 두 엔티티가 서로 참조하는 관계를 의미
+    *   - Post 가 여러 개의 Comment 를 가짐 -> @OneToMany
+    *   - Comment가 하나의 Post에 속함 -> @ManyToOne
+    * */
+
+    public void addComment(D_Comment comment) {
+        if (comment == null) return;
+        if (!this.comments.contains(comment)){ // 인자에 있는 값의 여부에 따라 값 달라짐
+            // : 기존의 댓글 배열(comments)에 추가하려는 댓글(comment)이 포함되어있지 않은 경우
+            this.comments.add(comment);
+            comment.setPost(this); // Comment 내에도 게시글 정보를 저장하게 됨
+        }
+    }
+
+    public void removeComment(D_Comment comment) {
+        if (comment == null) return;
+        if (this.comments.remove(comment)){
+            comment.setPost(null);
+        }
+    }
+
+
+
 
 }
