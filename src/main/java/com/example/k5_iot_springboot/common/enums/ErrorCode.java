@@ -18,7 +18,7 @@ public enum ErrorCode {
 
     CONFLICT
             (HttpStatus.CONFLICT, "CONFLICT", "요청이 서버 상태와 충돌합니다."),
-    
+
     INTERNAL_ERROR
             (HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR", "서버 내부 오류가 발생했습니다.");
 
