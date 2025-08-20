@@ -46,7 +46,7 @@ public class ResponseDto<T> {
         return ResponseDto.set(false, message, null);
     }
 
-    
+
     /*
      * 요청이 실패했을 때 으압 생성 - 오버로딩
      * @param message 실패 메시지
