@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor //빈 생성자가 바탕이 되어야함
 @ToString(exclude = "comments")// 서버 연관성과는 무관함
 // 해당 속성값의 필드를 제외하고 ToString 메서드 내에서 필드값을 출력해줌
-
+@Builder
 public class D_Post {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -80,6 +80,7 @@ public class D_Post {
     public static D_Post create(String title, String content, String author){
         return new D_Post(title, content, author);
     }
+
 
 
     // 수정 메서드

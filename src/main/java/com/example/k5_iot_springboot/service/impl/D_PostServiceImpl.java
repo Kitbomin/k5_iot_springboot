@@ -113,7 +113,7 @@ public class D_PostServiceImpl implements D_PostService {
     // 7) 특정 키워드로 제목 검색
     @Override
     public ResponseDto<List<PostListResponseDto>> searchPostsByTitle(String keyword) {
-        List<D_Post> posts = postRepository.findByTitleLikeIgnoreCaseOrderByIdDesc(keyword);
+        List<D_Post> posts = postRepository.findByTitleContainingIgnoreCaseOrderByIdDesc(keyword);
         List<PostListResponseDto> result = posts.stream()
                 .map(PostListResponseDto::from)
                 .toList();
@@ -124,9 +124,21 @@ public class D_PostServiceImpl implements D_PostService {
     // 8) 댓글 상위 5개
     @Override
     public ResponseDto<List<PostWithCommentCountResponseDto>> getTop5PostsByComments() {
-//        List<D_Post> posts = postRepository.
-//        List<PostWithCommentCountResponseDto> result
-        return null;
+        var rows= postRepository.findTopPostsByCommentCount_Native(5); // 반환되는건 List임
+
+        List<PostWithCommentCountResponseDto> result = rows.stream()
+                .map(row -> {
+                    D_Post post = D_Post.builder()
+                            .id(row.getPostId())
+                            .title(row.getTitle())
+                            .author(row.getAuthor())
+                            .build();
+
+                    return PostWithCommentCountResponseDto.from(post, row.getCommentCount());
+                        })
+                .toList();
+
+        return ResponseDto.setSuccess("SUCCESS", result);
     }
 
 
