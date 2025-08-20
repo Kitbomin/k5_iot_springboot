@@ -140,7 +140,6 @@ public class D_PostServiceImpl implements D_PostService {
     // 9) 댓글 포함 게시글 검색
     @Override
     public ResponseDto<List<PostListResponseDto>> searchPostsByCommentKeyword(String keyword) {
-
         // 1) 입력값 정제 / 검증
         String clean = (keyword == null) ? "" : keyword.trim();
 
@@ -151,11 +150,27 @@ public class D_PostServiceImpl implements D_PostService {
         if (clean.length() > 100){
             return ResponseDto.setFailed("키워드는 100자 이내로");
         }
-
         var rows = postRepository.findByCommentKeyword(clean);
-
         List<PostListResponseDto> result = rows.stream()
                 .map(PostListResponseDto::from).toList();
+        return ResponseDto.setSuccess("SUCCESS", result);
+    }
+
+    // 10) 특정 작성자의 게시글 중, 댓글 수가 minCount 이상인 게시글 조회
+    @Override
+    public ResponseDto<List<PostWithCommentCountResponseDto>> getAuthorPostsWithMinComments(String author, int minCount) {
+        // 입력값 검증(선택)
+        String clean = (author == null) ? "" : author.trim();
+
+        if (clean.isEmpty()) return ResponseDto.setFailed("작성자 이름은 비워둘 수 없습니다.");
+
+        // 리포지토리 호출(네이티브)
+        var rows = postRepository.findAuthorPostsWithMinCount(clean, 2);
+
+        // 매핑
+        List<PostWithCommentCountResponseDto> result = rows.stream()
+                .map(PostWithCommentCountResponseDto::from)
+                .toList();
         return ResponseDto.setSuccess("SUCCESS", result);
     }
 

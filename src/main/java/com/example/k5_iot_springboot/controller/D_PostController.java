@@ -10,6 +10,8 @@ import com.example.k5_iot_springboot.dto.ResponseDto;
 import com.example.k5_iot_springboot.service.D_PostService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -121,6 +123,16 @@ public class D_PostController {
 
 
     // 10) 특정 작성자의 게시글 중, 댓글 수가 minCount 이상인 게시글 조회
+    @GetMapping("/author/{author}/min-comments")
+    public ResponseEntity<ResponseDto<List<PostWithCommentCountResponseDto>>> getAuthorPostsWithMinComments(
+            @PathVariable("author") @NotBlank(message = "작성자는 비워질 수 없습니다.") String author,
+            @RequestParam(name = "minCount", defaultValue = "1")
+            @PositiveOrZero(message = "minCount는 0 이상이어야합니다.") int minCount
+    ){
+        ResponseDto<List<PostWithCommentCountResponseDto>> response = postService.getAuthorPostsWithMinComments(author, minCount);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 
 
 }

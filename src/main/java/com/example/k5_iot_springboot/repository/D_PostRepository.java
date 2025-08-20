@@ -209,4 +209,26 @@ public interface D_PostRepository extends JpaRepository<D_Post, Long> {
 """, nativeQuery = true)
     List<PostListProjection> findByCommentKeyword(@Param("keyword") String keyword);
 
+
+    // 10) 특정 작성자의 게시글 중, 댓글 수가 minCount 이상인 게시글 조회
+    @Query(value = """
+        select 
+            p.id as postId,
+            p.title as title,
+            p.author as author,
+            count(c.id) as commentCount
+        from
+            posts p
+            left join comments c
+            on c.post_id = p.id
+        where
+            p.author = :author
+        group by p.id, p.title, p.content, p.author
+        having count(c.id) >= :minCount
+        order by p.id desc
+
+""", nativeQuery = true)
+    List<PostWithCommentCountProjection> findAuthorPostsWithMinCount(@Param("author") String author, @Param("minCount") int minCount);
 }
+
+// EXISTS(select 1 from comments c where c.post_id = p.id and c.content like concat('%', :keyword, '%'))
