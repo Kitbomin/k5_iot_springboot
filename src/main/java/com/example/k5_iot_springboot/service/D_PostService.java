@@ -27,4 +27,6 @@ public interface D_PostService {
     ResponseDto<List<PostListResponseDto>> searchPostsByTitle(@NotBlank(message = "검색 키워드는 비워질 수 없습니다.") String keyword);
 
     ResponseDto<List<PostWithCommentCountResponseDto>> getTop5PostsByComments();
+
+    ResponseDto<List<PostListResponseDto>> searchPostsByCommentKeyword(String keyword);
 }

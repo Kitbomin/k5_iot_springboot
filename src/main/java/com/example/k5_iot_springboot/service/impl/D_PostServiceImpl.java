@@ -137,6 +137,29 @@ public class D_PostServiceImpl implements D_PostService {
     }
 
 
+    // 9) 댓글 포함 게시글 검색
+    @Override
+    public ResponseDto<List<PostListResponseDto>> searchPostsByCommentKeyword(String keyword) {
+
+        // 1) 입력값 정제 / 검증
+        String clean = (keyword == null) ? "" : keyword.trim();
+
+        if (clean.isEmpty()){
+            throw new IllegalArgumentException("검색 키워드는 비어져있을 수 없습니다.");
+        }
+
+        if (clean.length() > 100){
+            return ResponseDto.setFailed("키워드는 100자 이내로");
+        }
+
+        var rows = postRepository.findByCommentKeyword(clean);
+
+        List<PostListResponseDto> result = rows.stream()
+                .map(PostListResponseDto::from).toList();
+        return ResponseDto.setSuccess("SUCCESS", result);
+    }
+
+
     // === 내부 유틸 메서드 === //
     private Long requirePositiveId(Long id) {
         if (id == null || id <= 0) throw new IllegalArgumentException("id는 반드시 양수여야합니다.");

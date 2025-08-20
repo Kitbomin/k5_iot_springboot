@@ -1,6 +1,7 @@
 package com.example.k5_iot_springboot.dto.D_Post.response;
 
 import com.example.k5_iot_springboot.entity.D_Post;
+import com.example.k5_iot_springboot.repository.D_PostRepository;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -20,12 +21,19 @@ public record PostListResponseDto(
         return new PostListResponseDto(
 
                 post.getId(),
-
                 post.getTitle(),
-
                 post.getContent(),
-
                 post.getAuthor()
+        );
+    }
+
+    public static PostListResponseDto from(D_PostRepository.PostListProjection p){
+        if (p == null) return null;
+        return new PostListResponseDto(
+                p.getId(),
+                p.getTitle(),
+                p.getContent(),
+                p.getAuthor()
         );
     }
 
