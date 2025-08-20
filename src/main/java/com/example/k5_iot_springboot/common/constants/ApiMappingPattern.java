@@ -25,6 +25,15 @@ public class ApiMappingPattern {
         public static final String ROOT = BASE + "/posts";
         public static final String ID_ONLY = "/{postId}";
         public static final String BY_ID = ROOT + "/{postId}";
+
+        // 6) 작가 게시글 조회
+        public static final String BY_AUTHOR = "/author/{author}";
+
+        // 7) 키워드 제목 조회
+        public static final String SEARCH_BY_TITLE = "/search";
+
+        // 8) 댓글 탑5 게시글 조회
+        public static final String TOP_BY_COMMENTS = "/top-comments";
     }
 
     // == 3. 댓글(D_Comment) == //
@@ -47,6 +56,8 @@ public class ApiMappingPattern {
         public static final String ROOT = Posts.BY_ID + "/comments";
         public static final String ID_ONLY = "/{commentId}";
         public static final String BY_ID = ROOT + "/{commentId}";
+
+
     }
 
 
