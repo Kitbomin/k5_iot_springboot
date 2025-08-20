@@ -124,6 +124,9 @@ public class D_PostServiceImpl implements D_PostService {
     // 8) 댓글 상위 5개
     @Override
     public ResponseDto<List<PostWithCommentCountResponseDto>> getTop5PostsByComments() {
+        // var : 지역 변수 타입 추론을 담당하는 타입
+        // 장점 - 반환 타입의 길이가 길 경우 간결한 작성을 통해 가독성 향상
+        // 단점 - 타입을 숨겨버려 밑의 상세 내용을 읽지 않으면 가독성이 저하될 우려가 있음
         var rows= postRepository.findTopPostsByCommentCount_Native(5); // 반환되는건 List임
 
         List<PostWithCommentCountResponseDto> result = rows.stream()
