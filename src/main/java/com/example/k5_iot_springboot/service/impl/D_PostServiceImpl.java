@@ -127,15 +127,7 @@ public class D_PostServiceImpl implements D_PostService {
         var rows= postRepository.findTopPostsByCommentCount_Native(5); // 반환되는건 List임
 
         List<PostWithCommentCountResponseDto> result = rows.stream()
-                .map(row -> {
-                    D_Post post = D_Post.builder()
-                            .id(row.getPostId())
-                            .title(row.getTitle())
-                            .author(row.getAuthor())
-                            .build();
-
-                    return PostWithCommentCountResponseDto.from(post, row.getCommentCount());
-                        })
+                .map(PostWithCommentCountResponseDto::from)
                 .toList();
 
         return ResponseDto.setSuccess("SUCCESS", result);
