@@ -61,6 +61,16 @@ public class ApiMappingPattern {
     }
 
 
+    // === 4. 게시글(F_Board) === //
+    public static final class Boards {
+        private Boards() {}
+
+        public static final String ROOT = BASE + "/boards";
+
+        public static final String ID_ONLY = "/{boardId}";
+    }
+
+
     public static final String BOOK_API = "/api/v1/books";
 
 }
