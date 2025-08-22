@@ -6,6 +6,8 @@ import com.example.k5_iot_springboot.dto.F_Board.response.BoardResponseDto;
 import com.example.k5_iot_springboot.dto.ResponseDto;
 import com.example.k5_iot_springboot.service.F_BoardService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,11 +34,45 @@ public class F_BoardController {
         }
 
     // 2) 게시글 조회
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<ResponseDto<List<BoardResponseDto.SummaryResponse>>> getAllBoards() {
         ResponseDto<List<BoardResponseDto.SummaryResponse>> response = boardService.getAllBoards();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    // 2-1) 게시글 조회(페이지네이션 Offset 조회)
+    @GetMapping
+    public ResponseEntity<ResponseDto<BoardResponseDto.PageResponse>> getBoardsPage(
+            // page: 0부터 시작, 필요 시 1부터 시작하는 전략도 가능
+            @RequestParam(defaultValue = "0")
+            @Min(0) int page,
+
+            // size: 최대 100 제한(과도한 요청 방지)
+            @RequestParam(defaultValue = "10")
+            @Min(1) @Max(100) int size,
+
+            // sort: 여러 개 허용 - ex) sort = createAt,desc&sort=title,asc
+            @RequestParam(required = false) // 정렬은 필수가 아님
+            String[] sort
+    ) {
+        ResponseDto<BoardResponseDto.PageResponse> response = boardService.getBoardsPage(page, size, sort);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+
+    // 2-2) 게시글 조회(페이지네이션 Cursor 조회)
+    @GetMapping("/cursor")
+    public ResponseEntity<ResponseDto<BoardResponseDto.SliceResponse>> getBoardsByCursor (
+            // 처음 요청이면 null >> 가장 최신부터 시작됨
+            // : 목록을 항상 하나의 정렬 기준으로 고정함 (id DESC - 최신글 먼저 조회)
+            // > 다음 페이지를 가져올 때는 기준 커서보다 더 오래된 (작은 id) 행만 가져오게 됨
+            @RequestParam(required = false) Long cursorId,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size
+    ) {
+        ResponseDto<BoardResponseDto.SliceResponse> response = boardService.getBoardsByCursor(cursorId, size);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 
 
     // 3) 게시글 수정

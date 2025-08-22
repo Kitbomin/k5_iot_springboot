@@ -9,16 +9,74 @@ import com.example.k5_iot_springboot.service.F_BoardService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class F_BoardServiceImpl implements F_BoardService {
     private final F_BoardRepository boardRepository;
+
+    // === 페이지네이션 공통: 안전한 Pageable 생성(화이트리스트 정렬) === //
+    // - sort 엔 제약조건이 없음 -> 진짜 아무거나 다 정렬해버릴 수 있다는 소리
+    // : 정렬 키를 그대로 신뢰할 경우, 존재하지 않는 필드나 JPA 동적 JPQL 에서 문자열 충돌 발생 가능선 존재
+    private static final Set<String> ALLOWED_SORTS = Set.of("id", "title", "createdAt", "updatedAt"); //해당 내용을 제외한 키워드는 다 무시하겠단 정의
+    //set과 list의 차이: set은 순서가 없고 중복이 허용되지 않음
+
+    private Pageable buildPageable(int page, int size, String[] sortParams) {
+        // 정렬 파라미터 파싱: ["createdAt,desc", "title,asc"] 형태
+        // split 으로 ,를 기준으로 구분할거임
+
+        Sort sort = Sort.by("createdAt").descending(); // 기본 정렬: 최신순
+        // >> 정렬 파라미터가 없거나, 전부 화이트리스트에서 무시된 경우 디폴트 정렬을 사용하겠다는 정의
+
+        if (sortParams != null && sortParams.length > 0) { // 배열에 주소값이 있고, 요소가 1개 이상 있다 == 빈 배열이 아닌경우
+            // 정렬 순서를 보장할 리스트(순서O) - 여러 정렬 기준을 저장하기 위해
+            List<Sort.Order> orders = new ArrayList<>();
+            for (String p: sortParams) {
+                if (p == null || p.isBlank()) continue; // 그다음 sortParams 들고오세용
+
+                String[] t = p.split(","); // , 기준으로 스플릿 , t 에는 createdAt,desc 이런거 들어가있음
+
+                String property = t[0].trim(); // ,기준 0번째 값을 들고오고 공백 제거
+
+                // 화이트 리스트에 없는 속성을 무시할 로직
+                if (!ALLOWED_SORTS.contains(property)) continue; // 저장하지 않고 패스
+
+                // 기본 정렬 방향을 DESC로 선언 -> 피드/게시물은 최신순 정렬이 일반적임(권장)
+                Sort.Direction dir = Sort.Direction.DESC;
+
+                // t[1] 의 값을 들고올거임
+                if (t.length > 1) { // 정렬 기준이 존재한다는
+                    dir = "asc".equalsIgnoreCase(t[1].trim()) ?
+                            Sort.Direction.ASC : Sort.Direction.DESC ;
+                }
+
+                // 검증을 다 거친 후의 값 저장
+                // : 파싱한 정렬 기준 한 건을 Sort.Order 객체로 만들어 목록에 추가함
+                // - 여러건이 쌓이면 ORDER BY prop1 dir1, prop2 dir2 ... 순서대로 적용이 됨
+                orders.add(new Sort.Order(dir, property));
+            }
+
+            // 만약 다 돌고 orders가 비워지지 않을 경우 sort 값 재할당
+            if (!orders.isEmpty()) sort = Sort.by(orders);
+
+        }
+
+        // sortParams 가 비워진 경우 || 유효한 정렬이 없는 경우에 호출됨
+        return PageRequest.of(page, size, sort);
+    }
+
+
+
 
     @Override
     @Transactional
@@ -77,5 +135,20 @@ public class F_BoardServiceImpl implements F_BoardService {
         BoardResponseDto.DetailResponse result = BoardResponseDto.DetailResponse.from(board);
 
         return ResponseDto.setSuccess("SUCCESS", result);
+    }
+
+    @Override
+    public ResponseDto<BoardResponseDto.PageResponse> getBoardsPage(int page, int size, String[] sort) {
+
+        return null;
+    }
+
+
+
+
+
+    @Override
+    public ResponseDto<BoardResponseDto.SliceResponse> getBoardsByCursor(Long cursorId, int size) {
+        return null;
     }
 }
