@@ -9,6 +9,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -43,19 +46,26 @@ public class F_BoardController {
     // 2-1) 게시글 조회(페이지네이션 Offset 조회)
     @GetMapping
     public ResponseEntity<ResponseDto<BoardResponseDto.PageResponse>> getBoardsPage(
-            // page: 0부터 시작, 필요 시 1부터 시작하는 전략도 가능
-            @RequestParam(defaultValue = "0")
-            @Min(0) int page,
-
-            // size: 최대 100 제한(과도한 요청 방지)
-            @RequestParam(defaultValue = "10")
-            @Min(1) @Max(100) int size,
-
-            // sort: 여러 개 허용 - ex) sort = createAt,desc&sort=title,asc
-            @RequestParam(required = false) // 정렬은 필수가 아님
-            String[] sort
+//            // page: 0부터 시작, 필요 시 1부터 시작하는 전략도 가능
+//            @RequestParam(defaultValue = "0")
+//            @Min(0) int page,
+//
+//            // size: 최대 100 제한(과도한 요청 방지)
+//            @RequestParam(defaultValue = "10")
+//            @Min(1) @Max(100) int size,
+//
+//            // sort: 여러 개 허용 - ex) sort = createAt,desc&sort=title,asc
+//            @RequestParam(required = false) // 정렬은 필수가 아님
+//            String[] sort
+            @PageableDefault(
+                    page = 0,           // 기본 페이지 번호
+                    size = 10,          // 기본 페이지 크기
+                    sort = "createdAt", // 기본 정렬 컬럼
+                    direction = Sort.Direction.DESC // 기본 정렬 방향
+            ) Pageable pageable
     ) {
-        ResponseDto<BoardResponseDto.PageResponse> response = boardService.getBoardsPage(page, size, sort);
+//        ResponseDto<BoardResponseDto.PageResponse> response = boardService.getBoardsPage(page, size, sort);
+        ResponseDto<BoardResponseDto.PageResponse> response = boardService.getBoardsPage(pageable);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
