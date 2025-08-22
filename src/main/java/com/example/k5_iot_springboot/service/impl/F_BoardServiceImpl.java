@@ -9,9 +9,7 @@ import com.example.k5_iot_springboot.service.F_BoardService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -137,18 +135,68 @@ public class F_BoardServiceImpl implements F_BoardService {
         return ResponseDto.setSuccess("SUCCESS", result);
     }
 
+    // cf) Page<T> VS Slice<T>
+    // 1) Page<T>
+    //  : 전체 개수(count 쿼리) 까지 실행해서 가져옴
+
+    // 2) Slice<T>
+    //  : count 쿼리 실행 X, 데이터 개수를 size + 1 로 요청해 다음 페이지 존재 여부만 판단
+
     @Override
     public ResponseDto<BoardResponseDto.PageResponse> getBoardsPage(int page, int size, String[] sort) {
+        Pageable pageable = buildPageable(page, size, sort);
 
-        return null;
+        // cf) Pageable 인터페이스
+        //      : 페이징과 정렬 정보를 추상화한 인터페이스
+        //      >> 현재 페이지 번호, 한 페이지의 크기, 정렬 정보 반환, 다음 페이지 객체 생성, 이전 페이지 객체 생성을 담당함
+        //      >> 특징
+        //          : 실제 구현체는 PageRequest 사용 (PageRequest.of(page, size, sort))
+        //          : JpaRepository의 findAll(Pageable pageable) 메서드에 전달
+
+
+        Page<F_Board> pageResult = boardRepository.findAll(pageable);
+
+        List<BoardResponseDto.SummaryResponse> content = pageResult.getContent().stream()
+                .map(BoardResponseDto.SummaryResponse::from)
+                .toList();
+
+        BoardResponseDto.PageMeta meta = BoardResponseDto.PageMeta.from(pageResult);
+
+        BoardResponseDto.PageResponse result = BoardResponseDto.PageResponse.builder()
+                .content(content)
+                .meta(meta)
+                .build();
+
+        return ResponseDto.setSuccess("SUCCESS", result);
     }
-
-
 
 
 
     @Override
     public ResponseDto<BoardResponseDto.SliceResponse> getBoardsByCursor(Long cursorId, int size) {
-        return null;
+        // 커서는 최신순 id 기준으로 진행 (성능이 좋은 PK 정렬)
+        // - 첫 호출: cursorId == null (Long.MAX_VALUE로 간주: 최신부터)
+        long startId = (cursorId == null) ? Long.MAX_VALUE : cursorId;
+
+        Slice<F_Board> slice = boardRepository
+                .findByIdLessThanOrderByIdDesc(startId, PageRequest.of(0, size));
+
+        List<BoardResponseDto.SummaryResponse> content = slice.getContent().stream()
+                .map(BoardResponseDto.SummaryResponse::from)
+                .toList();
+
+        Long nextCursor = null;
+
+        if (!content.isEmpty()) {
+            nextCursor = content.get(content.size() - 1).id(); // 마지막 아이템의 id 반환
+        }
+
+        BoardResponseDto.SliceResponse result = BoardResponseDto.SliceResponse.builder()
+                .content(content)
+                .hasNext(slice.hasNext())
+                .nextCursor(nextCursor)
+                .build();
+
+        return ResponseDto.setSuccess("SUCCESS", result);
     }
 }
