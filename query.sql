@@ -105,5 +105,33 @@ select * from boards;
 
 use k5_iot_springboot;
 
+create table if not exists users (
+	id bigint not null auto_increment,
+    login_id varchar(50) not null,
+    password varchar(255) not null,
+    email varchar(255) not null,
+    nickname varchar(50) not null,
+    gender varchar(10),
+    
+    created_at datetime(6) not null,
+    updated_at datetime(6) not null,
+    
+    primary key(id),
+    constraint `uk_users_login_id` unique(login_id),
+    constraint `uk_users_email` unique(email),
+    constraint `uk_users_nickname` unique(nickname),
+    
+    constraint `chk_users_gender` check(gender in ('MALE', 'FEMALE'))
+    
+) engine=InnoDB
+  default charset = utf8mb4
+  collate = utf8mb4_unicode_ci
+  comment = '사용자';
+  
+  select * from users;
+
+
+
+
 
 
