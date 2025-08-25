@@ -57,6 +57,75 @@ package com.example.k5_iot_springboot.이론;
 *       - 요청을 차례로 검사하는 필터 묶음
 *       EX) '교문' 에서 열체크 > '복도' 손소독 > '문앞'
 *
+*   8. UserDetailsService
+*       - 사용자 조회 서비스 (DB에서 사용자를 찾는 역할)
+*
+*   9. PasswordEncoder
+*       - 비밀번호 해시/검증기: BCrypt 로 저장/비교
+*
+*   10. AuthenticationManager/Provider
+*       - 인증 총괄 / 실행
+*
+*   11. CSRF / CORS
+*       - 웹 보안 규칙 (폼 위조/ 다른 도메인을 호출하는 규칙)
+*
+*
+* === Security 요청 처리 흐름 ===
+* [브라우저] -> [Security Filter Chain] -> [인증 필요] -> [인증 시도]
+* +) 인증 성공: SecurityContext 에 저장 -> [Controller]
+* +) 인증 실패:
+*   401(UnAuthorized): 로그인이 안되어있음
+*   403(Forbidden): 권한이 아님
+*
+* >> 모든 요청은 필터 체인을 통과
+* >> 인증이 필요한 URL 이면 로그인 정보 확인 + 성공 시 SecurityContext 에서 사용자/권한을 저장
+*
+* === Spring Security 전체 처리 절차 ===
+*   1) HTTP 요청
+*       : 사용자가 브라우저/앱에서 요청을 보냄(ex: /login)을 보냄
+*           +) 데이터나 인증 정보(JWT 토큰) 가 포함되어 있을 수도 있고 없을 수도 있음
+*
+*   2) SecurityFilterChain - 검문소 라인
+*       : 모든 요청(인증 정보 포함 여부 상관 없음)
+*       - 로그인 요청인지(UsernamePasswordAuthenticationFilter 로 전달함)
+*       - JWT 토큰이 있는지 (JwtAuthenticationFilter, 커스텀 Filter에 전달)
+*       - 보호된 URL 인지 확인
+*
+*   3) AuthenticationManager / Provider - 신분 확인 부서
+*       : 로그인 시도(/login) 가 들어오면, 필터가 아이디/비번을 요청해 꺼냄
+*           >> AuthenticationManager 에 전달
+*               (UsernamePasswordAuthenticationToken - 인증용 객체)
+*           >> 여러 AuthenticationProvider 에게 일을 시킴
+*               (Manager가 Provider 에게)
+*               - 해당 아이디/비밀번호 일치 확인
+*               - DB 기반 로그인, 소셜 로그인, JWT 검증 등 다양한 Provider 존재
+*
+*   4) UserDetailsService - 사람 찾기 창구
+*       : Provider 가 아이디를 받으면 UserDetailsService를 호출
+*           >> DB에서 해당 유저 정보를 찾음
+*           >> 찾은 결과를 UserDetails 객체로 반환함
+*
+*   5) PasswordEncoder - 비밀번호 검증 담당
+*       : UserDetailsService 에서 가져온 비밀번호는 암호화(BCrypt 해시) 되어 있음
+*       - 사용자가 입력한 비밀번호와 DB 해시값을 Encoder가 비교
+*           >> 일치하면 인증 성공, 틀리면 실패를 반환
+*
+*   6) SecurityContext/SecurityContextHolder - 현재 로그인 정보 저장소
+*       : 인증 성공 시 스프링 시큐리티는 SecurityContext 안에 로그인된 유저 정보를 저장함
+*           >> SecurityContextHolder 에 보관, 같은 요청 시 언제든지 꺼낼 수 있음
+*           >> 서비스 / 컨트롤러에서 Authentication 타입의 매개변수로 로그인 사용자 정보 접근 가능
+*
+*   7) Authorities (권한) - 어디까지 접근 가능한지 확인
+*       : UserDetails 안에 유저가 가진 권한(ROLE) 정보 저장
+*       - 필터 체인은 요청된 URL과 권한을 비교함
+*           >> 맞으면 통과, 아니면 막힘
+*
+*   8) EntryPoint / AccessDeniedHandler - 실패 처리
+*       : 만약 인증이 되지 않았거나(로그인을 안함) , 권한이 부족하면
+*       - AuthenticationEntryPoint (로그인 필요): 401 Unauthorized
+*       - AccessDeniedHandler (권한 없음) : 403 Forbidden Error
+*
+*
 * */
 
 
