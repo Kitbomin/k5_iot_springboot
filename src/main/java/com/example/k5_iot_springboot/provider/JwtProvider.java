@@ -31,7 +31,7 @@ import java.util.Set;
 // cf)  @Component(클래스 레벨 선언) -> 스프링 런타임 시 컴포넌트 스캔을 통해 자동으로 빈을 찾고 등록함 (의존성 주입)
 //      @Bean(메서드 레벨 선언) -> 반환되는 객체를 개발자가 수동으로 빈 등록해야함
 public class JwtProvider {
-    private static final String BEARER_PREFIX = "Bearer "; //removeBearer 에서 사용
+    public static final String BEARER_PREFIX = "Bearer "; //removeBearer 에서 사용
 
 
     // 환경변수에 지정한 비밀키와 만료 시간 변수 선언
