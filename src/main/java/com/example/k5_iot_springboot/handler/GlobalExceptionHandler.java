@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+// 보안 설정상의 예외를 처리할 수 없음
+
 // @RestControllerAdvice: 해당 프로젝트 전역의 @RestController 에서 발생하는 예외를 처리해줌
 /*
 * 1. 단일 책임 원칙 (SRP)
