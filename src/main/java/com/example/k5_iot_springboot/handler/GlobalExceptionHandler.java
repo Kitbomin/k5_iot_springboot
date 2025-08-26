@@ -6,6 +6,7 @@ import com.example.k5_iot_springboot.common.errors.FieldErrorItem;
 import com.example.k5_iot_springboot.dto.ResponseDto;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.websocket.AuthenticationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -87,6 +88,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseDto<Object>> handleValidation(MethodArgumentNotValidException e) {
         log.warn("Validation failed: {}", e.getMessage());
         return fail(ErrorCode.VALIDATION_ERROR, null, toFieldErrors(e));
+    }
+
+    // === 401 ~~
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ResponseDto<Object>> handleAuth(AuthenticationException e) {
+        log.warn("UnAuthorized: {}", e.getMessage());
+        return fail(ErrorCode.UNAUTHORIZED, null, null);
     }
 
     // === 403 Forbidden: 접근 거부 === //

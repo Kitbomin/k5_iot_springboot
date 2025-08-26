@@ -10,4 +10,9 @@ import java.util.Optional;
 public interface G_UserRepository extends JpaRepository<G_User, Long> {
 
     Optional<G_User> findByLoginId(String loginId);
+
+    boolean existsByLoginId(String loginId);
+    boolean existsByEmail(String email);
+    boolean existsByNickname(String nickname);
+
 }

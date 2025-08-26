@@ -10,6 +10,9 @@ public enum ErrorCode {
     VALIDATION_ERROR
             (HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "입력값 검증에 실패하였습니다."),
 
+    UNAUTHORIZED
+            (HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", "인증이 필요합니다. 로그인 후 다시 시도해주세요."),
+
     FORBIDDEN
             (HttpStatus.FORBIDDEN, "FORBIDDEN", "접근 권한이 없습니다."),
 

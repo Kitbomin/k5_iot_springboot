@@ -47,6 +47,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         // 도메인 엔티티를 보안 VO 객체로 변환하여 반환
         return principalMapper.map(user);
     }
-    
+
 
 }
