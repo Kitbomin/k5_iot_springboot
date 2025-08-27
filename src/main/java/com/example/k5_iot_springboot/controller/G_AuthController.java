@@ -38,12 +38,6 @@ public class G_AuthController {
         return ResponseEntity.ok().body(response);
     }
 
-    /** 아이디 찾기? */
-    @PostMapping("/find-id")
-    public ResponseEntity<ResponseDto<FindIdResponse>> findId(@Valid @RequestBody FindIdRequest req) {
-        ResponseDto<FindIdResponse> response = authService.findId(req);
-        return ResponseEntity.ok().body(response);
-    }
 
 
 

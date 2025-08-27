@@ -118,32 +118,4 @@ public class G_AuthServiceImpl implements G_AuthService {
 
     }
 
-    @Override
-    @Transactional
-    public ResponseDto<FindIdResponse> findId(FindIdRequest req) {
-
-        Optional<G_User> users = userRepository.findByNicknameAndEmail(req.nickname(), req.email());
-
-        if (!userRepository.existsByNickname(req.nickname())) {
-            throw new IllegalArgumentException("해당 닉네임은 존재하지 않습니다.");
-        }
-
-        if (!userRepository.existsByEmail(req.email())) {
-            throw new IllegalArgumentException("해당 이메일은 존재하지 않습니다.");
-        }
-
-
-
-
-        FindIdResponse response = new FindIdResponse(
-                response.username(),
-                req.nickname(),
-                req.email()
-        );
-
-        return ResponseDto.setSuccess("SUCCESS", result);
-
-
-
-    }
 }

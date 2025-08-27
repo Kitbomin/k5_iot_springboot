@@ -105,30 +105,46 @@ select * from boards;
 
 use k5_iot_springboot;
 
-create table if not exists users (
-	id bigint not null auto_increment,
-    login_id varchar(50) not null,
-    password varchar(255) not null,
-    email varchar(255) not null,
-    nickname varchar(50) not null,
-    gender varchar(10),
+#0822(G_USER)
+CREATE TABLE IF NOT EXISTS `users` (
+	id BIGINT NOT NULL AUTO_INCREMENT,
+    login_id VARCHAR(50) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    nickname VARCHAR(50) NOT NULL,
+    gender VARCHAR(10),
+    created_at DATETIME(6) NOT NULL,
+    updated_at DATETIME(6) NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT `uk_users_login_id` UNIQUE (login_id),
+    CONSTRAINT `uk_users_email` UNIQUE (email),
+    CONSTRAINT `uk_users_nickname` UNIQUE (nickname),
+    CONSTRAINT `chk_users_gender` CHECK(gender IN ('MALE', 'FEMALE'))
+) ENGINE=InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+  COMMENT = '사용자';
+
+SELECT * FROM users;
+
+#0827(G_User_role)
+-- 사용자 권한 테이블  
+create table if not exists user_roles (
+	user_id bigint not null,
+    role varchar(30) not null,
     
-    created_at datetime(6) not null,
-    updated_at datetime(6) not null,
+    constraint fk_user_roles_user
+		foreign key (user_id) references users(id) on delete cascade,
+	constraint uk_user_roles unique (user_id, role),
     
-    primary key(id),
-    constraint `uk_users_login_id` unique(login_id),
-    constraint `uk_users_email` unique(email),
-    constraint `uk_users_nickname` unique(nickname),
-    
-    constraint `chk_users_gender` check(gender in ('MALE', 'FEMALE'))
+    constraint chk_user_roles_role check(role IN('USER', 'MANAGER', 'ADMIN'))
     
 ) engine=InnoDB
   default charset = utf8mb4
   collate = utf8mb4_unicode_ci
-  comment = '사용자';
+  comment = '사용자 권한';
   
-  select * from users;
+  select * from user_roles;
 
 
 

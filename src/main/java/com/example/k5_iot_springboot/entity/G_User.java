@@ -1,6 +1,7 @@
 package com.example.k5_iot_springboot.entity;
 
 import com.example.k5_iot_springboot.common.enums.Gender;
+import com.example.k5_iot_springboot.common.enums.RoleType;
 import com.example.k5_iot_springboot.entity.base.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -8,6 +9,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.usertype.UserType;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * UserEntity
@@ -59,14 +63,29 @@ public class G_User extends BaseTimeEntity {
     @Column(name = "gender", length = 20)
     private Gender gender;
 
+    /** 여러 권한 보유  */
+    @ElementCollection(fetch = FetchType.LAZY) // JWT에 roles를 저장하는 구조 - LAZY 가능
+    @CollectionTable(
+            name = "user_roles",
+            joinColumns =
+            @JoinColumn(name = "user_id",
+                    foreignKey =
+                    @ForeignKey(name = "fk_user_roles_user"))
+    )
+    @Column(name = "role", length = 30, nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Set<RoleType> roles = new HashSet<>();
+
+
     /** 생성 편의 메서드 */
     @Builder
-    private G_User(String loginId, String password, String email, String nickname, Gender gender) {
+    private G_User(String loginId, String password, String email, String nickname, Gender gender, Set<RoleType> roles) {
         this.loginId = loginId;
         this.password = password;
         this.email = email;
         this.nickname = nickname;
         this.gender = gender;
+        this.roles = (roles == null || roles.isEmpty()) ? new HashSet<>(Set.of(RoleType.USER)) : roles;
     }
 
     /** 변경/수정 메서드
@@ -82,4 +101,7 @@ public class G_User extends BaseTimeEntity {
         this.nickname = nickname;
         this.gender = gender;
     }
+
+    public void addRole(RoleType role) { this.roles.add(role); }
+    public void removeRole(RoleType role) { this.roles.remove(role); }
 }
