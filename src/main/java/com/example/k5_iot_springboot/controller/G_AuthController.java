@@ -40,9 +40,9 @@ public class G_AuthController {
 
     /** 아이디 찾기? */
     @PostMapping("/find-id")
-    public ResponseEntity<ResponseDto<ResponseDto<List<FindIdResponse.UsernameResponse>>>> findId(@Valid @RequestBody FindIdRequest req) {
-        ResponseDto<List<FindIdResponse.UsernameResponse>> response = authService.findId(req);
-        return ResponseEntity.ok().body(ResponseDto.setSuccess("아이디를 찾았습니다.", response));
+    public ResponseEntity<ResponseDto<FindIdResponse>> findId(@Valid @RequestBody FindIdRequest req) {
+        ResponseDto<FindIdResponse> response = authService.findId(req);
+        return ResponseEntity.ok().body(response);
     }
 
 

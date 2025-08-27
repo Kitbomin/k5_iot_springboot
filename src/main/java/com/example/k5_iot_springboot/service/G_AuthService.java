@@ -15,5 +15,5 @@ public interface G_AuthService {
 
     ResponseDto<SignInResponse> signIn(@Valid SignInRequest req);
 
-    ResponseDto<List<FindIdResponse.UsernameResponse>> findId(FindIdRequest req);
+    ResponseDto<FindIdResponse> findId(@Valid FindIdRequest req);
 }
