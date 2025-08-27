@@ -1,7 +1,9 @@
 package com.example.k5_iot_springboot.service.impl;
 
+import com.example.k5_iot_springboot.dto.G_Auth.request.FindIdRequest;
 import com.example.k5_iot_springboot.dto.G_Auth.request.SignInRequest;
 import com.example.k5_iot_springboot.dto.G_Auth.request.SignUpRequest;
+import com.example.k5_iot_springboot.dto.G_Auth.response.FindIdResponse;
 import com.example.k5_iot_springboot.dto.G_Auth.response.SignInResponse;
 import com.example.k5_iot_springboot.dto.ResponseDto;
 import com.example.k5_iot_springboot.entity.G_User;
@@ -18,6 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -81,7 +85,7 @@ public class G_AuthServiceImpl implements G_AuthService {
 
                 new UsernamePasswordAuthenticationToken(
                                 req.loginId(),
-                                req.password()
+                                req.password() // 비밀번호 검증은 스프링 시큐리티가 알아서 해줌!
                         )
                 );
 
@@ -111,6 +115,20 @@ public class G_AuthServiceImpl implements G_AuthService {
         );
 
         return ResponseDto.setSuccess("로그인 성공", response);
+
+    }
+
+    @Override
+    public ResponseDto<List<FindIdResponse.UsernameResponse>> findId(FindIdRequest req) {
+        Optional<G_User> users = userRepository.findByNicknameAndEmail(req.nickname(), req.email());
+
+        List<FindIdResponse.UsernameResponse> result = users.stream()
+                .map(FindIdResponse.UsernameResponse::from)
+                .toList();
+
+        return ResponseDto.setSuccess("SUCCESS", result);
+
+
 
     }
 }

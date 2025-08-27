@@ -10,11 +10,21 @@ import java.util.List;
 
 /**
  * === UserPrincipalMapper ===
- * : 엔티티(G_User) -> 보안 표현(UserPrincipal)로 변환시킴
+ * : 도메인 엔티티(G_User) -> 보안 표현(UserPrincipal)로 변환시킴
  *
  * +) 현재 G_User 에는 roles가 없으므로 기본 ROLE_USER를 부여해줄거임
  *
  * >> 추후 역할/ 권한 도입 시 해당 클래스만 변경하면 전역 반영이 가능함
+ *
+ * cf) 스프링 시큐리티는 인증/인가 단계에서 UserDetails 메서드의 인터페이스를 사용
+ *      >> UserPrincipal을 커스텀해서 대신 사용할거임
+ *      - 본 매퍼는 영속 엔티티로부터 인증/인가에 꼭 필요한 값만 뽑아
+ *          경량/불변 VO(UserPrincipal)로 만들어 SecurityContext에 안전하게 전달되도록 하는 매퍼
+ *
+ * # 사용되는 위치 #
+ * CustomUserDetailsService#loadUserByUsername(...) 가 G_User를 조회함
+ *      -> 본 매퍼로 UserPrincipal 생성
+ *      -> Authentication(Principal)에 주입되어 보안 컨텍스트에 저장
  * */
 
 @Component

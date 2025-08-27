@@ -1,28 +1,6 @@
 package com.example.k5_iot_springboot.security;
 
-/*
-* === UserPrincipal ===
-* : "보안 관점에서 사용자 표현"을 담당하는 값에 대한 객체(Value Object)
-* - Spring Security 가 인증/인가 과정에서 인지하는 최소한의 사용자 정보 집합
-* - 엔티티(G_User) 자체를 지니지 않고, 인증이 필요한 값만 안전하게 전달/보관 하는 역할을 담당
-*       >> 엔티티 자체를 지니지 않는다? => 결합도를 낮춘다는 뜻
-*       >> 캐시/직렬화 안정성을 높임
-*
-* 필요성
-* 1) Security의 표준 진입점: AuthenticationProvider는 UserDetails 타입을 통해 사용자 정보와 권한을 검사함
-*       >> 토큰의 payload의 username을 통해
-*           DB에서 사용자 정보를 읽고 해당 클래스로 감싼 뒤 반환하면 이후 인증 과정이 표준화 되어 동작하게 됨
-*
-* 2) 경량/안정성 향상: 영속성 엔티티(G_User)를 SecurityContext에 보관하면 직렬화 문제, 지연 로딩, 순환 참조 등의 문제 발생 가능성이 증가하게 됨
-*       >> 인증 성공 시 Authentication(Principal)에 들어가 SecurityContextHolder 에 저장됨
-*           - 컨트롤러에서 @AuthenticationPrincipal UserPrincipal principal 로 주입받아 사용
-*
-*       >> 설계 포인트
-*           1) 불변성: 모든 필드는 final(생성 이후 변경 불가)
-*           2) @JsonIgnore, @ToString(exclude="password")를 통해 비밀번호 유출을 2중 차단
-*           3) 빌더 사용: 가독성 향상, 테스트에 용이함
-*
-* */
+
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
@@ -32,21 +10,58 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
+
+/*
+ * === UserPrincipal ===
+ * : "보안 관점에서 사용자 표현"을 담당하는 값에 대한 객체(Value Object, VO)
+ * - Spring Security 가 인증/인가 과정에서 인지하는 최소한의 사용자 정보 집합
+ * - 엔티티(G_User) 자체를 지니지 않고, 인증이 필요한 값만 안전하게 전달/보관 하는 역할을 담당
+ *       >> 엔티티 자체를 지니지 않는다? => 결합도를 낮춘다는 뜻
+ *       >> 캐시/직렬화 안정성을 높임
+ * - VO에는 보안관련된 값은 절대 넣으면 안됨
+ *
+ * 필요성
+ * 1) Security의 표준 진입점: AuthenticationProvider는 UserDetails 타입을 통해 사용자 정보와 권한을 검사함
+ *       >> 토큰의 payload의 username을 통해
+ *          CustomUserDetailsService#loadUserByUsername()에서 DB 사용자 정보를 읽고, 해당 클래스로 감싼 뒤 반환하면, 이후 인증 과정이 표준화되어 동작하게 됨
+ *
+ * 2) 경량/안정성 향상: 영속성 엔티티(G_User)를 SecurityContext에 보관하면 직렬화 문제, 지연 로딩, 순환 참조 등의 문제 발생 가능성이 증가하게 됨
+ *       >> VO 형태의 UserPrincipal은 인증에 필요한 최소 데이터만 포함하고 있어 안전함
+ *
+ *       >> 인증 성공 시 Authentication(Principal)에 들어가 SecurityContextHolder 에 저장됨
+ *           - 컨트롤러에서 @AuthenticationPrincipal UserPrincipal principal 로 주입받아 사용
+ *           - JWT 발급 시 클레임으로 id/username/roles를 넣는 출처로 활용됨
+ *
+ *   >> 권한 모델(authorities): GrantedAuthority 집합
+ *       EX) new SimpleGrantedAuthority("ROLE_USER)
+ *       - 스프링 시큐리티의 hasRole("USER") / hasAuthority("ROLE_USER") 검사와 호환되도록 "ROLE_" 접두어를 붙이는 것을 권장함
+ *
+ *
+ *   >> 설계 포인트
+ *      1) 불변성: 모든 필드는 final(생성 이후 변경 불가)
+ *      2) @JsonIgnore, @ToString(exclude="password")를 통해 비밀번호 유출을 2중 차단
+ *      3) 빌더 사용: 가독성 향상, 테스트에 용이함
+ *
+ * */
 
 @Getter
-@ToString(exclude = "password")
+@ToString(exclude = "password") // 로그 등에 password가 노출되지 않도록 ToString 제외
 public class UserPrincipal implements UserDetails {
     // UserDetails: 시큐리티가 요구하는 사용자 정보 인터페이스
+    //          >> Spring Security가 사용자의 정보를 불러오기 위해서는 UserDetails를 구현해야함
 
     private final Long id;                                              // PK
+    // 사용자 내부 식별용
+
     private final String username;                                      // 로그인 아이디
+    // 아이디 역할만 하면 됨
 
     @JsonIgnore
     private final String password;                                      // 해시 비밀번호
+    // 이미 해싱된 상태의 비밀번호 사용/ToString 에서도 제외됨
 
     private final Collection<? extends GrantedAuthority> authorities;   // 권한
-
+    //"ROLE_" 접두어 붙이는걸 권장
 
     /** 계정 상태 플래그들
      *  각 데이터가 false면 만료 - 로그인 거부
@@ -96,12 +111,29 @@ public class UserPrincipal implements UserDetails {
      * 특징
      *  >> 값 반환 이외의 로직은 작성하지 않음
      * */
+
+    // 계정의 권한목록 리턴
     @Override public Collection<? extends GrantedAuthority> getAuthorities() { return authorities; }
+
+    // 계정의 비밀번호 리턴
     @Override public String getPassword() { return password; }
+    // >> 인증 단계에서 DaoAuthenticationProvider가 비밀번호 매칭에 사용(반드시 해시값을 사용해야함)
+
+
+    // 계정의 고유한 값을 리턴
     @Override public String getUsername() { return username; }
+    // >> DB PK값, 중복이 없는 유니크 값이 들어갈 수 있음
+
+    // 계정의 만료 여부 리턴
     @Override public boolean isAccountNonExpired() { return accountNonExpired; }
+
+    // 계정의 잠김 여부 리턴
     @Override public boolean isAccountNonLocked() { return accountNonLocked; }
+
+    // 비밀번호 만료여부 리턴
     @Override public boolean isCredentialsNonExpired() { return credentialsNonExpired; }
+
+    // 계정의 활성화 여부 리턴
     @Override public boolean isEnabled() { return enabled; }
 
 

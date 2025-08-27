@@ -4,6 +4,7 @@ import com.example.k5_iot_springboot.entity.G_User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -15,4 +16,5 @@ public interface G_UserRepository extends JpaRepository<G_User, Long> {
     boolean existsByEmail(String email);
     boolean existsByNickname(String nickname);
 
+    Optional<G_User> findByNicknameAndEmail(String nickname, String email);
 }
