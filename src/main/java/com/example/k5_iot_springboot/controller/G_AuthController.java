@@ -1,10 +1,8 @@
 package com.example.k5_iot_springboot.controller;
 
 
-import com.example.k5_iot_springboot.dto.G_Auth.request.FindIdRequest;
 import com.example.k5_iot_springboot.dto.G_Auth.request.SignInRequest;
 import com.example.k5_iot_springboot.dto.G_Auth.request.SignUpRequest;
-import com.example.k5_iot_springboot.dto.G_Auth.response.FindIdResponse;
 import com.example.k5_iot_springboot.dto.G_Auth.response.SignInResponse;
 import com.example.k5_iot_springboot.dto.ResponseDto;
 import com.example.k5_iot_springboot.service.G_AuthService;
@@ -13,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/auth") // 토큰없이 처리해주겠다는 곳이니까 회원가입, 로그인, 아이디찾기, 비밀번호 재설정 등을 여기에 배치함

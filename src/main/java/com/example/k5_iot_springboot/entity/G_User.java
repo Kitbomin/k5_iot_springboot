@@ -96,8 +96,6 @@ public class G_User extends BaseTimeEntity {
 
     /** 변경/수정 메서드 */
     public void changeProfile(String nickname, Gender gender) {
-//        this.email = email;
-
         this.nickname = nickname;
         this.gender = gender;
     }

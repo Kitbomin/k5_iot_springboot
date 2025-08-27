@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  * === JwtAuthenticationFilter ===
  * : JWT 인증 필터
  * - 요청에서 JWT 토큰을 추출
- *   >> request의 header에서 토큰을 추출하여 검증 (유효한 경우 SecurityContext에 인증 정보 저장)
+ *   >> request의 header 에서 토큰을 추출하여 검증 (유효한 경우 SecurityContext에 인증 정보 저장)
  *
  * cf) Spring Security가 OncePerRequestFilter를 상속받아 매 요청마다 1회 실행
  * */
@@ -58,6 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * @param response      현재 HTTP 요청 응답
      * @param filterChain   다음 필터로 넘기기 위한 체인
      * */
+    /* 요청은 다 받아주고, 인증에 문제가 있으면 예외 걸어주는 역할 */
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -73,7 +74,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            // 1) Preflight(OPTIONS, 사전 요청)는 통과 (CORS 사전 요청)
+            // 1) Preflight(OPTIONS, 사전 요청)는 통과 (CORS 사전 요청) (정보값이 없음)
             // cf) OPTIONS 메서드 - 특정 리소스(URL)에 대한 통신 옵션 정보를 요청하는 데 사용
             if (HttpMethod.OPTIONS.matches(request.getMethod())) {
                 filterChain.doFilter(request, response);
@@ -104,7 +105,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 6) 토큰 유효성 검사(서명/만료 포함)
             if (!jwtProvider.isValidToken(token)) {
-                unauthorized(response, "토큰이 유효하지 않거나 만료되었습니다.");
+                unauthorized(response, "토큰이 유효하지 않거나 만료되었습니다."); // 토큰이 유효하지 않은 경우 - 시큐리티 설정 없이 로직 실행
                 return;
             }
 
@@ -127,7 +128,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 9) SecurityContext에 인증 저장
             // : 인증 객체를 만들고 SecurityContext에 저장
-            // >> 해당 시점부터 현재 요청은 "username이라는 사용자가 authorities 권한으로 인증됨" 상태가 됨
+            // >> 해당 시점부터 현재 요청은 "username 이라는 사용자가 authorities 권한으로 인증됨" 상태가 됨
             setAuthenticationContext(request, principal);
 
         } catch (Exception e) {
