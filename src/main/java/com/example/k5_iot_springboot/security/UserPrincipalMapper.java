@@ -42,8 +42,11 @@ public class UserPrincipalMapper {
                     ? List.of(new SimpleGrantedAuthority("ROLE_USER"))
                         // 해당 권한(들)을 GrantedAuthority 타입으로 변환하여 반환
                     : user.getRoles().stream()
-                        .map(r -> new SimpleGrantedAuthority("ROLE_" + r.name()))
-                        .toList();
+                        .map(r -> {
+                            String name = r.name();
+                            String role = name.startsWith("ROLE_") ? name : "ROLE_" + name;
+                            return new SimpleGrantedAuthority(role);
+                        }).toList();
 
         return UserPrincipal.builder()
                 .id(user.getId())

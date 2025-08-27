@@ -68,9 +68,8 @@ public class G_User extends BaseTimeEntity {
     @CollectionTable(
             name = "user_roles",
             joinColumns =
-            @JoinColumn(name = "user_id",
-                    foreignKey =
-                    @ForeignKey(name = "fk_user_roles_user"))
+            @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_user_roles_user")),
+            uniqueConstraints = @UniqueConstraint(name = "uk_user_roles", columnNames = {"user_id", "role"})
     )
     @Column(name = "role", length = 30, nullable = false)
     @Enumerated(EnumType.STRING)

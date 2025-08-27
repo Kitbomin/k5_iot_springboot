@@ -55,7 +55,7 @@ public class WebSecurityConfig {
     @Value("${cors.allowed-methods:GET,POST,PUT,PATCH,DELETE,OPTIONS}")
     private String allowedMethods;
 
-    @Value("${cors.exposed-headers:Authorization,Set-cookie}")
+    @Value("${cors.exposed-headers:Authorization,Set-Cookie}")
     private String exposedHeaders; // 필요한 헤더만 노출
 
     @Value("${security.h2-console:true}") //개발 편의성 고려 -> 개발용 H2 콘솔 접근 허용 여부 (아래에서 권한 부여할거임) -> 개발 용이라 배포할 땐 제거하는게 좋음
@@ -165,16 +165,29 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> {
                     // H2 콘솔 접근 권한 열기(개발 환경에서 DB를 직접 확인 - 인증 절차 없이 접속할 수 있도록 예외를 둠                
                     if (h2ConsoleEnabled) auth.requestMatchers("/h2-console/**").permitAll();
+
+                    // SecurityFilterChain URL 보안 규칙
                     auth
                             // PreFlight 허용
                             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                            
-                            // 인증/ 회원가입 등 공개 엔드 포인트 - 토큰이 필요없는 기능
-                            .requestMatchers("/api/v1/auth/**")
-                            .permitAll()
 
-                            // 읽기 공개 예시 (게시글 목록, 조회 등)
-                            .requestMatchers(HttpMethod.GET, "/api/v1/boards/**").permitAll()
+                            // === URL 레벨에서 1차 차단(+컨트롤러 메서드에서 @PreAuthorize로 2차 방어까지) === //
+
+                            // 인증/ 회원가입 등 공개 엔드 포인트 - 토큰이 필요없는 기능
+                            .requestMatchers("/api/v1/auth/**").permitAll()
+
+                            // 마이페이지(내 정보) - 인증(Authentication)이 필요함 / 대신 모든 역할이 다 누릴 수 있는 기능임
+                            .requestMatchers("/api/v1/users/me/**").authenticated()
+
+                            // boards 접근 제어
+                            .requestMatchers(HttpMethod.GET,    "/api/v1/boards/**").hasAnyRole("USER", "MANAGER", "ADMIN")
+                            .requestMatchers(HttpMethod.POST,   "/api/v1/boards/**").hasAnyRole("MANAGER", "ADMIN")
+                            .requestMatchers(HttpMethod.PUT,    "/api/v1/boards/**").hasAnyRole("MANAGER", "ADMIN")
+                            .requestMatchers(HttpMethod.DELETE, "/api/v1/boards/**").hasAnyRole("ADMIN")
+
+                            // ADMIN 전용 권한관리 API
+                            .requestMatchers("/api/v1/admin/**").hasAnyRole("ADMIN")
+
                             .anyRequest().authenticated(); // 나머지는 인증 필요 - JWT 토큰이 있어야 접근 가능함
                     
                     }

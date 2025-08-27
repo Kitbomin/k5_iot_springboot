@@ -68,7 +68,7 @@ public class JwtProvider {
     /* 서명용 비밀키, 액세스 토큰 만료시간(ms), 만료 직후 허용할 시계 오차(s) => application.properties에 선언함 */
     // 환경변수에 지정한 비밀키와 만료 시간 변수 선언
     private final SecretKey key;
-    private final int jwtExpirationMs;
+    private final long jwtExpirationMs;
     private final int clockSkewSeconds;
 
     /* 검증이나 파싱을 하는 파서 역할 */
@@ -83,7 +83,7 @@ public class JwtProvider {
             // @Value: application.properties 나 application.yml 과 같은 설정 파일의 값을 클래스 변수에 주입하는 방식 * yml = 확장자명
             //          >> 데이터 타입을 자동 인식함
             @Value("${jwt.secert}") String secret,                      // cf) Base64 인코딩된 비밀키 문자열이어야한다는 전제조건이 붙음
-            @Value("${jwt.expiration}") int jwtExpirationMs,
+            @Value("${jwt.expiration}") long jwtExpirationMs,
             @Value("${jwt.clock-skew-seconds:0}") int clockSkewSeconds  // 기본값 = 0 - 옵션
     ) {
 

@@ -45,6 +45,11 @@ public class CustomUserDetailsService implements UserDetailsService {
      * */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        String loginId = (username == null) ? "" : username.trim();
+
+        // 아무것도 없을 때 궅이 디비를 들여다 볼 필요 없으니까 밑의 조건
+        if (loginId.isEmpty()) throw new UsernameNotFoundException("사용자를 찾을 수 없습니다." + username);
+
         // 현재는 loginId를 username 으로 사용하는 정책임 -- 8/27
         // +) 이메일 로그인 정책 시 userRepository.findByEmail(username) 형태로 변경
         G_User user = userRepository.findByLoginId(username)
