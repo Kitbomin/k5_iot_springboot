@@ -119,6 +119,7 @@ public class G_AuthServiceImpl implements G_AuthService {
     }
 
     @Override
+    @Transactional
     public ResponseDto<List<FindIdResponse.UsernameResponse>> findId(FindIdRequest req) {
         Optional<G_User> users = userRepository.findByNicknameAndEmail(req.nickname(), req.email());
 
