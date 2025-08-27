@@ -1,6 +1,8 @@
 package com.example.k5_iot_springboot.repository;
 
 import com.example.k5_iot_springboot.entity.G_User;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -32,6 +34,13 @@ public interface G_UserRepository extends JpaRepository<G_User, Long> {
     boolean existsByLoginId(String loginId);
     boolean existsByEmail(String email);
     boolean existsByNickname(String nickname);
+
+    @EntityGraph(attributePaths = "roles")
+    Optional<G_User> findWithRolesById(
+            @NotNull(message = "userId는 필수입니다.")
+            @Positive(message = "userId는 양수여야합니다.")
+            Long id
+    );
 
 //    Optional<G_User> findByNicknameAndEmail(String nickname, String email);
 }
