@@ -47,7 +47,8 @@ dependencies {
 	// Spring Web Security 스타터
 	// - 인증 / 보안 처리를 위한 의존성 추가
 	implementation 'org.springframework.boot:spring-boot-starter-security'
-	testImplementation 'org.springframework.security:spring-security-test'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    testImplementation 'org.springframework.security:spring-security-test'
 
 	// JWT 의존성 추가
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
