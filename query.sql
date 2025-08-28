@@ -151,7 +151,26 @@ create table if not exists user_roles (
   insert into user_roles(user_id, role) values (2, "USER");
 
 
-
+#0827(H_Article)
+-- 기사 테이블  
+create table if not exists articles (
+	id bigint auto_increment,
+    title varchar(200) not null,
+    content longtext not null,
+    author_id bigint not null,
+    created_at datetime(6) not null,
+    updated_at datetime(6) not null,
+    
+    primary key (id),
+    constraint fk_articles_author
+		foreign key (author_id) references users(id) on delete cascade
+    
+) engine=InnoDB
+  default charset = utf8mb4
+  collate = utf8mb4_unicode_ci
+  comment = '기사글';
+  
+  select * from articles;
 
 
 
