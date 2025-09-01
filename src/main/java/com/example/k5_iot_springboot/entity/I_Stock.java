@@ -17,7 +17,7 @@ public class I_Stock extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @NotNull
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "product_id",
