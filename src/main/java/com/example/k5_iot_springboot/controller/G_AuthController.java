@@ -1,8 +1,10 @@
 package com.example.k5_iot_springboot.controller;
 
 
+import com.example.k5_iot_springboot.dto.G_Auth.request.FindIdRequest;
 import com.example.k5_iot_springboot.dto.G_Auth.request.SignInRequest;
 import com.example.k5_iot_springboot.dto.G_Auth.request.SignUpRequest;
+import com.example.k5_iot_springboot.dto.G_Auth.response.FindIdResponse;
 import com.example.k5_iot_springboot.dto.G_Auth.response.SignInResponse;
 import com.example.k5_iot_springboot.dto.ResponseDto;
 import com.example.k5_iot_springboot.service.G_AuthService;
@@ -35,7 +37,12 @@ public class G_AuthController {
         return ResponseEntity.ok().body(response);
     }
 
-
+    /** 아이디 찾기 */
+    @PostMapping("/find-id")
+    public ResponseEntity<ResponseDto<FindIdResponse>> findId(@Valid @RequestBody FindIdRequest req) {
+        ResponseDto<FindIdResponse> response = authService.findId(req);
+        return ResponseEntity.ok().body(response);
+    }
 
 
 }

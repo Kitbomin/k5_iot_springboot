@@ -118,4 +118,21 @@ public class G_AuthServiceImpl implements G_AuthService {
 
     }
 
+    @Override
+    public ResponseDto<FindIdResponse> findId(FindIdRequest req) {
+        // 1) 유효성 검사 (중복체크 - 유니크 제약 검증)
+        if (!userRepository.existsByLoginId(req.nickname())) {
+            throw new IllegalArgumentException("존재하지 않는 닉네임입니다.");
+        }
+
+        if (!userRepository.existsByEmail(req.email())) {
+            throw new IllegalArgumentException("존재하지 않는 이메일 입니다.");
+        }
+
+
+
+
+        return null;
+    }
+
 }

@@ -6,4 +6,12 @@ public record FindIdResponse (
         String username,
         String nickname,
         String email
-        ){ }
+        ){
+        public static FindIdResponse from(G_User user) {
+                return new FindIdResponse(
+                        user.getLoginId(),
+                        user.getEmail(),
+                        user.getNickname()
+                );
+        }
+}
