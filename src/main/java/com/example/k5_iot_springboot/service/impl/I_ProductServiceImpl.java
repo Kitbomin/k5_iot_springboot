@@ -69,22 +69,26 @@ public class I_ProductServiceImpl implements I_ProductService {
         boolean priceChanged = request.price() != null && !Objects.equals(product.getPrice(), request.price());
 
 
-        if (product.getName().equals(request.name()) && product.getPrice() == request.price()){
+        if (!nameChanged && !priceChanged){
             throw new IllegalArgumentException("변경된 데이터가 없어요");
         }
 
         if (nameChanged) product.setName(request.name());
         if (priceChanged) product.setPrice(request.price());
 
-        I_Product saved = productRepository.save(product);
+//        I_Product saved = productRepository.save(product);
+//
+//        stockRepository.save(
+//                I_Stock.builder()
+//                        .product(saved)
+//                        .build()
+//        );
 
-        stockRepository.save(
-                I_Stock.builder()
-                        .product(saved)
-                        .build()
+        data = new ProductResponse.DetailResponse(
+                product.getId(),
+                product.getName(),
+                product.getPrice()
         );
-
-        data = new ProductResponse.DetailResponse(product.getId(), product.getName(), product.getPrice());
 
         return ResponseDto.setSuccess("제품이 성공적으로 수정되었습니다.", data);
     }
