@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
  * */
 
 @RestController
-@RequestMapping("/api/v1/products")
+@RequestMapping(ApiMappingPattern.Products.ROOT)
 @RequiredArgsConstructor
 public class I_ProductController extends BaseTimeEntity {
 
@@ -27,7 +27,7 @@ public class I_ProductController extends BaseTimeEntity {
     // 제품 등록
     // : 권한 -> USER, MANAGER, ADMIN 중 등록/수정은 ADMIN 만 가능하도록
     // - 조회는 누구나 가능
-    @PostMapping(ApiMappingPattern.Products.ROOT)
+    @PostMapping
     public ResponseEntity<ResponseDto<ProductResponse.DetailResponse>> create(
             @AuthenticationPrincipal UserPrincipal principal,
             @Valid @RequestBody ProductRequest.Create request

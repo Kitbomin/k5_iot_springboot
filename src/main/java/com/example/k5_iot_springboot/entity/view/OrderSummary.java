@@ -35,7 +35,7 @@ public class OrderSummary {
     private Integer quantity;       // 주문 수량
     private Integer price;          // 제품 가격
 
-    private Integer total_price;    // (oi.quantity * p.price) AS total_price
+    private Long total_price;    // (oi.quantity * p.price) AS total_price
 
     @Column(name = "ordered_at")
     private LocalDateTime orderedAt;  // 생성 시각

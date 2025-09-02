@@ -41,6 +41,7 @@ public class I_ProductServiceImpl implements I_ProductService {
     }
 
     @Override
+    @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseDto<ProductResponse.DetailResponse> update(
             Long productId, UserPrincipal principal,
@@ -49,9 +50,13 @@ public class I_ProductServiceImpl implements I_ProductService {
 
         I_Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없어요"));
-        // 위 아래는 같은 내ㅛㅇㅇ
+
         if (request.name() == null && request.price() == null){
             throw new IllegalArgumentException("수정할 데이터가 없어용");
+        }
+
+        if (product.getName().equals(request.name()) && product.getPrice() == request.price()){
+            throw new IllegalArgumentException("변경된 데이터가 없어요");
         }
 
         if (request.name() != null) product.setName(request.name());

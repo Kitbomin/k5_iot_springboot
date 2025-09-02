@@ -22,7 +22,7 @@ public class OrderTotalsView {
     private Long user_id;
 
     private String order_status;
-    private Integer order_total_amount;
+    private Long order_total_amount;
     private Long order_total_quantity;
 
     @Column(name = "ordered_at")
