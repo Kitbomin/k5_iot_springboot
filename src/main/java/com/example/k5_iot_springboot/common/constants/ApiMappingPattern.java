@@ -73,4 +73,15 @@ public class ApiMappingPattern {
 
     public static final String BOOK_API = "/api/v1/books";
 
+
+
+    // === 5. 제품(I_Product) === //
+    public static final class Products {
+        private Products() {}
+
+        public static final String ROOT = BASE + "/products";
+
+        public static final String ID_ONLY = "/{productId}";
+    }
+
 }

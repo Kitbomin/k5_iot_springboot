@@ -316,6 +316,7 @@ values
 -- 뷰 (행 단위)
 -- : 주문 상세 화면 (API) - 한 주문의 각 상품 라인 아이템 정보를 상세하게 제공할 때
 -- EX) GET  /api/v1/orders/{orderId}/items
+DROP VIEW order_summary;
 CREATE OR REPLACE VIEW order_summary AS 
 SELECT 
 	o.id 					AS order_id,
@@ -324,7 +325,7 @@ SELECT
     p.name					AS product_name,
     oi.quantity				AS quantity,
     p.price					AS price,
-    (oi.quantity * p.price) AS total_price,
+    CAST((oi.quantity * p.price) AS SIGNED) AS total_price,
     o.created_at			AS ordered_at
 FROM
 	orders o
@@ -332,13 +333,14 @@ FROM
     JOIN products p on oi.product_id = p.id;
 
 -- 뷰 (주문 합계)
+Drop view order_totals;
 CREATE OR REPLACE VIEW order_totals AS 
 SELECT
 	o.id 						AS order_id,
     o.user_id					AS user_id,
     o.order_status				AS order_status,
-    SUM(oi.quantity * p.price) 	AS order_total_amount,
-    SUM(oi.quantity)			AS order_total_quantity,
+    CAST(SUM(oi.quantity * p.price) AS SIGNED)	AS order_total_amount,
+    CAST(SUM(oi.quantity)			AS SIGNED)	AS order_total_quantity,
     MIN(o.created_at)			AS ordered_at -- 혹시 분산되면 가장 과거의 값을 들고오게 보장해줌
 FROM
 	orders o

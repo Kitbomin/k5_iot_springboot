@@ -6,10 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table( name = "products",
@@ -37,4 +34,14 @@ public class I_Product extends BaseTimeEntity {
         this.price = price;
     }
 
+
+    // 그냥 @Setter하면 안됨? -> ID까지 Setter가 되어버리면 안되니까 딱 필요한거만 씀
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
 }
