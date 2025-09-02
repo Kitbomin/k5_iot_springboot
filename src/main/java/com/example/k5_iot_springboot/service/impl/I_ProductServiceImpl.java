@@ -4,7 +4,6 @@ import com.example.k5_iot_springboot.dto.I_Order.request.ProductRequest;
 import com.example.k5_iot_springboot.dto.I_Order.response.ProductResponse;
 import com.example.k5_iot_springboot.dto.ResponseDto;
 import com.example.k5_iot_springboot.entity.I_Product;
-import com.example.k5_iot_springboot.repository.G_UserRepository;
 import com.example.k5_iot_springboot.repository.I_ProductRepository;
 import com.example.k5_iot_springboot.security.UserPrincipal;
 import com.example.k5_iot_springboot.service.I_ProductService;
@@ -14,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -55,12 +56,16 @@ public class I_ProductServiceImpl implements I_ProductService {
             throw new IllegalArgumentException("수정할 데이터가 없어용");
         }
 
+        boolean nameChanged = request.name() != null && !Objects.equals(product.getName(), request.name());
+        boolean priceChanged = request.price() != null && !Objects.equals(product.getPrice(), request.price());
+
+
         if (product.getName().equals(request.name()) && product.getPrice() == request.price()){
             throw new IllegalArgumentException("변경된 데이터가 없어요");
         }
 
-        if (request.name() != null) product.setName(request.name());
-        if (request.price() != null) product.setPrice(request.price());
+        if (nameChanged) product.setName(request.name());
+        if (priceChanged) product.setPrice(request.price());
 
         data = new ProductResponse.DetailResponse(product.getId(), product.getName(), product.getPrice());
 

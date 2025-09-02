@@ -84,4 +84,14 @@ public class ApiMappingPattern {
         public static final String ID_ONLY = "/{productId}";
     }
 
+    // === 6. 수량(I_Stocks) === //
+    public static final class Stocks {
+        private Stocks () {}
+
+        public static final String ROOT = BASE + "/stocks";
+        public static final String ADJUST = "/adjust";
+
+        public static final String PRODUCT_ID = "/{productId}";
+    }
+
 }
