@@ -4,7 +4,9 @@ import com.example.k5_iot_springboot.dto.I_Order.request.ProductRequest;
 import com.example.k5_iot_springboot.dto.I_Order.response.ProductResponse;
 import com.example.k5_iot_springboot.dto.ResponseDto;
 import com.example.k5_iot_springboot.entity.I_Product;
+import com.example.k5_iot_springboot.entity.I_Stock;
 import com.example.k5_iot_springboot.repository.I_ProductRepository;
+import com.example.k5_iot_springboot.repository.I_StockRepository;
 import com.example.k5_iot_springboot.security.UserPrincipal;
 import com.example.k5_iot_springboot.service.I_ProductService;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,6 +23,7 @@ import java.util.Objects;
 @Transactional(readOnly = true)
 public class I_ProductServiceImpl implements I_ProductService {
     private final I_ProductRepository productRepository;
+    private final I_StockRepository stockRepository;
 
     @Override
     @Transactional
@@ -35,6 +38,12 @@ public class I_ProductServiceImpl implements I_ProductService {
                 .build();
 
         I_Product saved = productRepository.save(product);
+
+        stockRepository.save(
+                I_Stock.builder()
+                        .product(saved)
+                        .build()
+        );
 
         data = new ProductResponse.DetailResponse(saved.getId(), saved.getName(), saved.getPrice());
 
@@ -66,6 +75,14 @@ public class I_ProductServiceImpl implements I_ProductService {
 
         if (nameChanged) product.setName(request.name());
         if (priceChanged) product.setPrice(request.price());
+
+        I_Product saved = productRepository.save(product);
+
+        stockRepository.save(
+                I_Stock.builder()
+                        .product(saved)
+                        .build()
+        );
 
         data = new ProductResponse.DetailResponse(product.getId(), product.getName(), product.getPrice());
 
