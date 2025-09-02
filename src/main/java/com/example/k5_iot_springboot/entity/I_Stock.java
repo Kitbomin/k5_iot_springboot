@@ -13,16 +13,16 @@ import lombok.NoArgsConstructor;
         indexes = {@Index(name = "idx_stocks_product_id", columnList = "product_id")})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class I_Stock extends BaseTimeEntity {
+public class I_Stock extends BaseTimeEntity { //재고가 바뀔 때마다 create,update 변화를 주기 위해서 상품 테이블에서 분리함
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
+    @NotNull // 참조되는 값이 PK 값이기 때문에 비원질 수 없음
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "product_id",
                 nullable = false,
-                foreignKey = @ForeignKey(name = "fk_stocks_product"))
+                foreignKey = @ForeignKey(name = "fk_stocks_product")) //FK 설정은 칼럼 내에서 설정함
     private I_Product product;
 
     @Min(0)
