@@ -15,6 +15,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -140,7 +141,77 @@ public class I_OrderServiceImpl implements I_OrderService {
     @Transactional
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN') or @authz.canCancel(#orderId, authentication)")
     public ResponseDto<OrderResponse.Detail> cancel(UserPrincipal principal, Long orderId) {
-        return null;
+        OrderResponse.Detail data = null;
+
+        I_Order order = orderRepository.findDetailById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("주문을 찾을 수 없습니다. id=" + orderId));
+
+        // 이미 취소된 주문일 경우 그대로 반환 (또는 예외 발생)
+        if (order.getOrderStatus() == OrderStatus.CANCELLED) {
+            throw new IllegalStateException("이미 취소된 주문입니댜ㅏ.");
+            // return ResponseDto.setFailed("이미 취소된 주문입니다.");
+        }
+
+        // === MANAGER와 ADMIN은 PENDING 상태가 아니어도 (APPROVED 상태라도) 취소 가능하다면? === //
+        // 상태별 분기
+        if (order.getOrderStatus() == OrderStatus.PENDING) {
+            // 승인 전 (PENDING): 권한 확인 필요 없음
+            // +) 재고 차감이 없었기 때문에 복원할 필요 없음
+            order.setOrderStatus(OrderStatus.CANCELLED);
+        } else if (order.getOrderStatus() == OrderStatus.APPROVED) {
+            // 승인 후 (APPROVED): 권한확인 필요함
+            // +) MANAGER/ADMIN 만 취소 허용
+            // +) 재고 차감이 있었기 때문에 복원해야함
+            if (!hasManagerOrAdmin(principal)) {
+                // hasManagerOrAdmin의 결과값이 false인 경우
+                throw new IllegalArgumentException("승인된 주문은 관리자 권한(ADMIN/MANAGER) 만 취소 가능합니다.");
+            }
+            // 권한이 있는 경우
+            // 재고 복원 되야함
+            Map<Long, Integer> restoreMap = new HashMap<>();
+
+            // 같은 상품 정보에 수량에 대한 중복 제거(단일 수량으로 합치기)
+            for (I_OrderItem item: order.getItems()) {
+                // 아이템 순회하면서 복구할거임
+                Long productId = item.getProduct().getId();             // 해당 주문 항목의 상품 고유 ID를 순회하여 저장
+                int quantity = item.getQuantity();                      // 해당 주문 항목의 주문 수량을 순회해 저장
+                Integer prev = restoreMap.get(productId);               // 상품 ID를 Key로, 수량을 value로 저장하는 Map
+                                                                        // >> 현재 productId에 해당하는 기존 수량을 다시 가져옴
+                                                                        //      해당 key가 없다면 null로 반환될거임
+
+                restoreMap.put(productId, (prev == null ? quantity : prev + quantity));
+            }
+
+            // 중복없는 구매의 제품 Id에 대해 취소 재고를 복구
+            for (Map.Entry<Long, Integer> e: restoreMap.entrySet()) {
+                Long productId = e.getKey();
+                int quantity = e.getValue();    // 재고 복원 데이터
+
+                // 재고 레코드 행 단위 잠금
+                I_Stock stock = stockRepository.findByProductIdForUpdate(productId)
+                        .orElseThrow(() -> new IllegalStateException("재고 정보가 없습니다. productId = " + productId));
+
+                stock.setQuantity(stock.getQuantity() + quantity);      // 변경 감지로 업데이트 시킨거임
+            }
+            order.setOrderStatus(OrderStatus.CANCELLED);
+        } else {
+            throw new IllegalArgumentException("취소할 수 없는 주문 상태입니다: " + order.getOrderStatus());
+        }
+
+
+        // PENDING이 아니면 취소 불가능한 로직
+//        if (order.getOrderStatus() != OrderStatus.PENDING){
+//            throw new IllegalArgumentException("PENDING 상태의 주문만 취소할 수 있습니다.");
+//        }
+
+        order.setOrderStatus(OrderStatus.CANCELLED);
+
+        data = toOrderResponse(order);
+
+        // +) 변경 정보 자동 저장
+        // +) 변경 발생 시 DB 트리거에 의해 로그 기록 생성
+
+        return ResponseDto.setSuccess("주문 취소가 정상적으로 진행되었어요", data);
     }
 
     @Override
@@ -148,6 +219,10 @@ public class I_OrderServiceImpl implements I_OrderService {
     public ResponseDto<List<OrderResponse.Detail>> search(UserPrincipal principal, Long userId, OrderStatus status, LocalDateTime from, LocalDateTime to) {
         return null;
     }
+
+
+
+
 
     // === 변환 유틸 === //
     private OrderResponse.Detail toOrderResponse(I_Order order) {
@@ -183,6 +258,20 @@ public class I_OrderServiceImpl implements I_OrderService {
                 DateUtils.toKstString(order.getCreatedAt()),
                 items
         );
+    }
+
+    // == 호출자 권한이 MANAGER/ADMIN 인지 확인하는 유틸 == //
+    private boolean hasManagerOrAdmin(UserPrincipal principal) {
+
+        // 권한에 아무것도 없으면?
+        if (principal == null || principal.getAuthorities() == null) return  false;
+
+        for (GrantedAuthority auth: principal.getAuthorities()) {
+            String role = auth.getAuthority();
+            if ("ROLE_ADMIN".equals(role) || "ROLE_MANAGER".equals(role)) return true;
+        }
+
+        return false;
     }
 
 }
