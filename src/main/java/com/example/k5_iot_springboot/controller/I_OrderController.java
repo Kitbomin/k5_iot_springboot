@@ -1,5 +1,6 @@
 package com.example.k5_iot_springboot.controller;
 
+import com.example.k5_iot_springboot.common.enums.OrderStatus;
 import com.example.k5_iot_springboot.dto.I_Order.request.OrderRequest;
 import com.example.k5_iot_springboot.dto.I_Order.response.OrderResponse;
 import com.example.k5_iot_springboot.dto.ResponseDto;
@@ -9,9 +10,13 @@ import com.example.k5_iot_springboot.service.I_OrderService;
 import jakarta.validation.Valid;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -40,7 +45,7 @@ public class I_OrderController extends BaseTimeEntity {
     }
 
 
-    /** 주문 승인: ADMIN/MANAGER 만 가능 */
+    /** 주문 승인: USER 불가능, ADMIN/MANAGER 만 가능 */
     @PostMapping("/{orderId}/approve")
     public ResponseEntity<ResponseDto<OrderResponse.Detail>> approve(
             @AuthenticationPrincipal UserPrincipal principal, //주문 승인자 정보를 저장할 경우 필요함
@@ -52,7 +57,7 @@ public class I_OrderController extends BaseTimeEntity {
     }
 
 
-    /** 주문 취소:  */
+    /** 주문 취소: USER(본인 + PENDING 한정), MANAGER, ADMIN */
     @PostMapping("/{orderId}/cancel")
     public ResponseEntity<ResponseDto<OrderResponse.Detail>> cancel(
             @AuthenticationPrincipal UserPrincipal principal,
@@ -62,7 +67,22 @@ public class I_OrderController extends BaseTimeEntity {
         return ResponseEntity.ok(response);
     }
 
-    // 검색
+    /** 주문 검색: USER(본인꺼만), MANAGER, ADMIN은 전체 데이터에 대한 검색 가능 */
+    @GetMapping
+    public ResponseEntity<ResponseDto<List<OrderResponse.Detail>>> search(
+            @AuthenticationPrincipal UserPrincipal principal,       // 로그인 한 사용자 정보
+            @RequestParam(required = false) Long userId,            // 검색한 사용자 정보
+            @RequestParam(required = false) OrderStatus status,
+
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to
+    ) {
+        ResponseDto<List<OrderResponse.Detail>> response = orderService.search(principal, userId, status, from, to);
+        return ResponseEntity.ok(response);
+
+    }
 
 
 
