@@ -40,7 +40,7 @@ public class G_User extends BaseTimeEntity {
     @Id
     @Column(name = "id", updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     /** 로그인 아이디(유니크) */
     @Column(name = "login_id" ,updatable = false, nullable = false, length = 50)
