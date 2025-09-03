@@ -25,8 +25,9 @@ public class I_StockServiceImpl implements I_StockService {
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    public ResponseDto<StockResponse.Response> adjust(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                      @Valid @RequestBody StockRequest.StockAdjust request) {
+    public ResponseDto<StockResponse.Response> adjust(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @Valid @RequestBody StockRequest.StockAdjust request) {
         // 재고 증감: delta 값이 양수 -> 입고/반품 음수-> 출고/차감
         StockResponse.Response data = null;
 
