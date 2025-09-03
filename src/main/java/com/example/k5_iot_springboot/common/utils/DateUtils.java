@@ -41,4 +41,15 @@ public class DateUtils {
         return ISO_UTC.format(odt);
     }
 
+    //KST(LocalDateTime) >>> UTC 변환
+    // KST 2025-09-03 13:00:00 을 UTC로 변환ㅅ ㅣ2025-09-03 04:00:00 으로 변환
+    public static LocalDateTime kstToUtc(LocalDateTime kstDateTime) {
+        if (kstDateTime == null) return null;
+        return kstDateTime.atZone(ZONE_KST)
+                .withZoneSameInstant(ZoneOffset.UTC)
+                .toLocalDateTime();
+    }
+    // 입력 받을 땐 KST > UTC 인데
+    // 보여줄 땐 UTC > KST 변환이 필요함
+
 }
