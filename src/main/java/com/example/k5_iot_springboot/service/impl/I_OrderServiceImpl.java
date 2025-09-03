@@ -5,10 +5,7 @@ import com.example.k5_iot_springboot.common.utils.DateUtils;
 import com.example.k5_iot_springboot.dto.I_Order.request.OrderRequest;
 import com.example.k5_iot_springboot.dto.I_Order.response.OrderResponse;
 import com.example.k5_iot_springboot.dto.ResponseDto;
-import com.example.k5_iot_springboot.entity.G_User;
-import com.example.k5_iot_springboot.entity.I_Order;
-import com.example.k5_iot_springboot.entity.I_OrderItem;
-import com.example.k5_iot_springboot.entity.I_Product;
+import com.example.k5_iot_springboot.entity.*;
 import com.example.k5_iot_springboot.repository.I_OrderRepository;
 import com.example.k5_iot_springboot.repository.I_ProductRepository;
 import com.example.k5_iot_springboot.repository.I_StockRepository;
@@ -22,7 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor // final 필드 OR @NonNull 필드란을 매개변수로 가지는 생성자
@@ -92,7 +91,49 @@ public class I_OrderServiceImpl implements I_OrderService {
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseDto<OrderResponse.Detail> approve(UserPrincipal principal, Long orderId) {
-        return null;
+        OrderResponse.Detail data = null;
+        I_Order order = orderRepository.findDetailById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("주문을 찾을 수 없어요 id=" + orderId));
+
+        if (order.getOrderStatus() != OrderStatus.PENDING) {
+            throw new IllegalArgumentException("PENDING 상태에서만 승인이 가능합니다.");
+        }
+
+        // Map 컬렉션 프레임워크 사용
+        // 주문 항목: 상품 A X 2 / 상품 B X 3 / 상품 A X 3
+        //          >> 단순히 리스트로 순회하며 차감 시 상품 A 재고를 2번 차감하게 됨
+        //      -> 그래서 Map<Long, Integer>: key=productId, value=누적수량 (수량을 합해 한번에 차감/복원이 가능하게끔)
+
+        Map<Long, Integer> needMap = new HashMap<>();
+        order.getItems().forEach(item -> needMap.merge(
+                item.getProduct().getId(),
+                item.getQuantity(),
+                Integer::sum)
+        );
+
+        // 재고 확인 & 차감(productId 단위로 처리)
+        for (Map.Entry<Long, Integer> e: needMap.entrySet()) {
+            Long productId = e.getKey();
+            int need = e.getValue();
+            I_Stock stock = stockRepository.findByProductIdForUpdate(productId)
+                    .orElseThrow(() -> new IllegalArgumentException("재고 정보가 없어요 id=" + productId));
+
+            if (stock.getQuantity() < need) {
+                // 상태가 이상하니까 상태 예외
+                throw new IllegalStateException(
+                        "재고 부족: productId=%d , 필요=%d, 보유=%d"
+                                .formatted(productId, need, stock.getQuantity())
+                );
+            }
+            stock.setQuantity(stock.getQuantity() - need);
+        }
+
+        order.setOrderStatus(OrderStatus.APPROVED);
+        // 상태변경 트리거가 order_logs에 자동 기록해줌
+
+        data = toOrderResponse(order);
+
+        return ResponseDto.setSuccess("주문이 정상적으로 승인되었어요", data);
     }
 
     @Override
