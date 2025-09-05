@@ -240,7 +240,7 @@ create table if not exists orders (
 	
     index idx_orders_user 		(user_id),
     index idx_orders_status		(order_status),
-    index idx_orders_created_at (created_at)
+    index idx_orders_created_at (created_at) -- 얘는 시작과 끝에 대한 값을 넣어야함 
     
 )	engine=InnoDB
 	default charset = utf8mb4
@@ -384,6 +384,7 @@ select * from stocks;
 select * from orders;
 select * from order_items;
 select * from order_logs;
+select * from users;
 
 
 
