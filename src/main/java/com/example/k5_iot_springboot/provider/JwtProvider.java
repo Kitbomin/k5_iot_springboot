@@ -82,7 +82,7 @@ public class JwtProvider {
     public JwtProvider(
             // @Value: application.properties 나 application.yml 과 같은 설정 파일의 값을 클래스 변수에 주입하는 방식 * yml = 확장자명
             //          >> 데이터 타입을 자동 인식함
-            @Value("${jwt.secert}") String secret,                      // cf) Base64 인코딩된 비밀키 문자열이어야한다는 전제조건이 붙음
+            @Value("${jwt.secret}") String secret,                      // cf) Base64 인코딩된 비밀키 문자열이어야한다는 전제조건이 붙음
             @Value("${jwt.expiration}") long jwtExpirationMs,
             @Value("${jwt.clock-skew-seconds:0}") int clockSkewSeconds  // 기본값 = 0 - 옵션
     ) {

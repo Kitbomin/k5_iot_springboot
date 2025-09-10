@@ -21,9 +21,9 @@ public interface G_UserRepository extends JpaRepository<G_User, Long> {
     // roles의 지연로딩(LAZY)로 인한 LazyInitializationException 위험
     // 해결 방법 1) 리포지토리에 fetch-join 쿼리 추가: u.roles 컬렉션을 한번에 가져오기 때문에 N+1 문제를 방지함
     @Query("""
-        select u from G_User u 
-        left join fetch u.roles
-        where u.loginId = :loginId    
+        select u from G_User u
+        left join fetch u.userRoles
+        where u.loginId = :loginId
     """)
     Optional<G_User> findWithRolesByLoginId(@Param("loginId") String loginId);
 
