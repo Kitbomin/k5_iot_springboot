@@ -48,7 +48,10 @@ dependencies {
 	// - 인증 / 보안 처리를 위한 의존성 추가
 	implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+
+	// Spring Web Email 기능 구현 스타터
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
 
 	// JWT 의존성 추가
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'

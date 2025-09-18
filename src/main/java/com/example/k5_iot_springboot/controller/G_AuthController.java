@@ -37,6 +37,23 @@ public class G_AuthController {
         return ResponseEntity.ok().body(response);
     }
 
+
+    /** 이메일 전송 */
+    @PostMapping("/send-email")
+    public ResponseEntity<ResponseDto<Void>> sendEmail(@Valid @RequestBody SendMailRequestDto req) {
+        authService.senEmail(req);
+
+        return ResponseEntity.noContent().build();
+    }
+    /** 이메일 인증 */
+    @GetMapping("/verify")
+    public ResponseEntity<ResponseDto<Void>> verifyEmail(@RequestParam String token) {
+        authService.verifyEmail(token);
+
+        return ResponseEntity.noContent().build();
+    }
+
+
     /** 아이디 찾기 */
     @PostMapping("/find-id")
     public ResponseEntity<ResponseDto<FindIdResponse>> findId(@Valid @RequestBody FindIdRequest req) {
@@ -44,5 +61,11 @@ public class G_AuthController {
         return ResponseEntity.ok().body(response);
     }
 
+    /**비밀번호 재설정*/
+    @PostMapping("/reset-password")
+    public ResponseEntity<ResponseDto<Void>> resetPassword(@Valid @RequestBody PasswordResetResponseDto req) {
+        authService.resetPassword(req);
+        return ResponseEntity.noContent().build();
+    }
 
 }
