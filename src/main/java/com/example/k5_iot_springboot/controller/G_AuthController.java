@@ -6,8 +6,10 @@ import com.example.k5_iot_springboot.dto.G_Auth.request.SignInRequest;
 import com.example.k5_iot_springboot.dto.G_Auth.request.SignUpRequest;
 import com.example.k5_iot_springboot.dto.G_Auth.response.FindIdResponse;
 import com.example.k5_iot_springboot.dto.G_Auth.response.SignInResponse;
+import com.example.k5_iot_springboot.dto.J_Mail.MailRequest;
 import com.example.k5_iot_springboot.dto.ResponseDto;
 import com.example.k5_iot_springboot.service.G_AuthService;
+import com.example.k5_iot_springboot.service.J_MailService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class G_AuthController {
     private final G_AuthService authService;
+    private final J_MailService mailService;
 
 
     /** 회원가입 */
@@ -40,15 +43,17 @@ public class G_AuthController {
 
     /** 이메일 전송 */
     @PostMapping("/send-email")
-    public ResponseEntity<ResponseDto<Void>> sendEmail(@Valid @RequestBody SendMailRequestDto req) {
-        authService.senEmail(req);
+    public ResponseEntity<ResponseDto<Void>> sendEmail(@Valid @RequestBody MailRequest.SendMail req) {
+        mailService.sendEmail(req);
 
         return ResponseEntity.noContent().build();
     }
+
+
     /** 이메일 인증 */
     @GetMapping("/verify")
     public ResponseEntity<ResponseDto<Void>> verifyEmail(@RequestParam String token) {
-        authService.verifyEmail(token);
+        mailService.verifyEmail(token);
 
         return ResponseEntity.noContent().build();
     }
@@ -63,7 +68,7 @@ public class G_AuthController {
 
     /**비밀번호 재설정*/
     @PostMapping("/reset-password")
-    public ResponseEntity<ResponseDto<Void>> resetPassword(@Valid @RequestBody PasswordResetResponseDto req) {
+    public ResponseEntity<ResponseDto<Void>> resetPassword(@Valid @RequestBody MailRequest.PasswordReset req) {
         authService.resetPassword(req);
         return ResponseEntity.noContent().build();
     }
