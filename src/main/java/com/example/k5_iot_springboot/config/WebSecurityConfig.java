@@ -103,7 +103,7 @@ public class WebSecurityConfig {
         config.setAllowCredentials(true);        
         
         // 2) Origin 설정 - 도메인 매칭 (반드시 필요한 코드이긴 한데 배포때 활성화 해야함 -> 지금은 경로값이 *로 설정되어있어서 처리 못함)
-//        config.setAllowedOriginPatterns(origins);
+        config.setAllowedOriginPatterns(origins);
         
         // 3) 요청 헤더 화이트 리스트 검증
         config.setAllowedHeaders(splitToList(allowedHeaders));
