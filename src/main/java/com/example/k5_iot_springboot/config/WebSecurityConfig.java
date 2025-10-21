@@ -175,7 +175,7 @@ public class WebSecurityConfig {
 
                             // 인증/ 회원가입 등 공개 엔드 포인트 - 토큰이 필요없는 기능
                             .requestMatchers("/api/v1/auth/**").permitAll()
-
+                            .requestMatchers("api/v1/notices/**").permitAll()
 
                             // 마이페이지(내 정보) - 인증(Authentication)이 필요함 / 대신 모든 역할이 다 누릴 수 있는 기능임
                             .requestMatchers("/api/v1/users/me/**").authenticated()
