@@ -125,6 +125,11 @@ CREATE TABLE IF NOT EXISTS `users` (
   COLLATE = utf8mb4_unicode_ci
   COMMENT = '사용자';
 
+insert into users (login_id, password, email, nickname, gender, created_at, updated_at) values
+('qwer123', 'qwer123', 'qwe@asdf.com' ,'qwe', 'MALE', NOW(6), NOW(6)),
+('asdf123', 'qwer123', 'asd@asdf.com' ,'asd', 'FEMALE', NOW(6), NOW(6)),
+('zxcv123', 'qwer123', 'zxc@asdf.com' ,'zxc', 'MALE', NOW(6), NOW(6));
+
 SELECT * FROM users;
 
 # 0910 (G_Role)
@@ -221,6 +226,15 @@ create table if not exists articles (
   default charset = utf8mb4
   collate = utf8mb4_unicode_ci
   comment = '기사글';
+  
+  insert into articles (title, content, author_id, created_at, updated_at)
+  values
+  ('기사 1', '내ㅔ용', 1, now(6), now(6)),
+  ('기사 2', '내ㅔ용', 2, now(6), now(6)),
+  ('기사 3', '내ㅔ용', 3, now(6), now(6)),
+  ('기사 4', '내ㅔ용', 1, now(6), now(6)),
+  ('기사 5', '내ㅔ용', 2, now(6), now(6)),
+  ('기사 6', '내ㅔ용', 3, now(6), now(6));
   
   select * from articles;
 
@@ -438,7 +452,15 @@ select * from order_items;
 select * from order_logs;
 select * from users;
 
+CREATE TABLE notice (
+	id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    author VARCHAR(100) NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 
+SELECT * FROM notice;
 
 
 use k5_iot_springboot;

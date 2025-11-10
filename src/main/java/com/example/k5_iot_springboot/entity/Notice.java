@@ -25,7 +25,7 @@ public class Notice {
     @Column(name = "author")
     private String author;
 
-    @Column(name = "create_at")
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
 }
