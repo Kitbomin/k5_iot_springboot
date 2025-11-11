@@ -71,6 +71,7 @@ public class JwtProvider {
     // 환경변수에 지정한 비밀키와 만료 시간 변수 선언
     private final SecretKey key;
     private final long jwtExpirationMs;
+    private final long jwtRefreshExpirationMs;
     private final long jwtEmailExpirationMs;
     private final int clockSkewSeconds;
 
@@ -87,6 +88,7 @@ public class JwtProvider {
             //          >> 데이터 타입을 자동 인식함
             @Value("${jwt.secret}") String secret,                      // cf) Base64 인코딩된 비밀키 문자열이어야한다는 전제조건이 붙음
             @Value("${jwt.expiration}") long jwtExpirationMs,
+            @Value("${jwt.refresh-expiration}") long jwtRefreshExpirationMs,
             @Value("${jwt.email-expiration}") long jwtEmailExpirationMs,
             @Value("${jwt.clock-skew-seconds:0}") int clockSkewSeconds  // 기본값 = 0 - 옵션
     ) {
@@ -102,6 +104,7 @@ public class JwtProvider {
         // HMAC-SHA 알고리즘으로 암호화된 키 생성
         this.key = Keys.hmacShaKeyFor(secretBytes);             // HMAC-SHA 용 SecretKey 객체 생성함
         this.jwtExpirationMs = jwtExpirationMs;
+        this.jwtRefreshExpirationMs = jwtRefreshExpirationMs;
         this.jwtEmailExpirationMs = jwtEmailExpirationMs;
         this.clockSkewSeconds = Math.max(clockSkewSeconds, 0);  // 최소값은 0보다 크다는걸 보장하는 음수 방지용
 
@@ -115,22 +118,31 @@ public class JwtProvider {
     * */
 
     /*
-     * 액세스 토큰 생성
+     * 액세스(Access) 토큰 생성
      * @Param username      sub(Subject) 에 저장할 사용자 식별자
      * @Param roles         권한 목록(중복 제거용 Set 권장) -> JSON은 Set을 인식하지 못함. 그래서 JSON 배열로 직렬화를 시켜야함
      *
      * subject=sub(username), roles는 커스텀 클레임 사용
      * */
     public String generateJwtToken(String username, Set<String> roles) {
+        return  buildToken(username, roles, jwtExpirationMs);
+    }
+
+    /** 리프레시(Refresh) 토큰 생성*/
+    public String generateRefreshToken(String username, Set<String> roles) {
+        return  buildToken(username, roles, jwtRefreshExpirationMs);
+    }
+
+
+    /** 공통 빌드 로직 (Access + Refresh) */
+    private String buildToken(String username, Set<String> roles, long expirationMs) {
         long now = System.currentTimeMillis(); // 토큰이 생성되는 시간을 측정
         Date iat = new Date(now);
-        Date exp = new Date(now + jwtExpirationMs);
+        Date exp = new Date(now + expirationMs);
         // 더 깔끔하게 정리하면 위와 같이 할 수 있음
 
         // List로 변환하여 직렬화 시 타입 안정성이 확보됨
         List<String> roleList = (roles == null) ? List.of() : new ArrayList<>(roles);
-
-
 
         return Jwts.builder()
                 // 표준 클레임 sub(Subject)에 사용자 아이디 (또는 고유 식별자) 설정
@@ -142,6 +154,7 @@ public class JwtProvider {
                 .signWith(key)                              // 비밀키를 서명(this.key = Keys.hmacShaKeyFor(secretBytes);)
                 .compact(); // 빌더를 압축해 최종 JWT 문자열을 생성시킴
     }
+
 
     public String generatedEmailJwtToken(String email) {
         return Jwts.builder()
