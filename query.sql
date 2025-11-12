@@ -477,4 +477,36 @@ create table refresh_tokens (
 
 select * from refresh_tokens;
 
+create table trucks (
+	id bigint auto_increment primary key,
+    owner_id bigint not null,
+    name varchar(100) not null,
+    category varchar(50),
+    region varchar(50),
+    description varchar(255),
+    
+    constraint fk_trucks_user foreign key (owner_id) references users(id)
+)	engine=InnoDB
+	default charset = utf8mb4
+    collate = utf8mb4_unicode_ci
+    comment = '푸드트럭 테이블' ;
+
+drop table reservations;
+create table reservations (
+	id bigint primary key not null auto_increment,
+    truck_id bigint not null,
+    user_id bigint not null,
+    date date not null,
+    time_slot varchar(20) not null,
+    status varchar(20) not null,
+    
+    constraint fk_reservations_truck foreign key (truck_id) references trucks(id),
+    constraint fk_reservations_user foreign key (user_id) references users(id)
+)	engine=InnoDB
+	default charset = utf8mb4
+    collate = utf8mb4_unicode_ci
+    comment = 'reservation Table' ;
+
+
+
 use k5_iot_springboot;

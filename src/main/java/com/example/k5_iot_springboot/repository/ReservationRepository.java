@@ -1,0 +1,11 @@
+package com.example.k5_iot_springboot.repository;
+
+import com.example.k5_iot_springboot.entity.RefreshToken;
+import com.example.k5_iot_springboot.entity.Reservation;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface ReservationRepository extends JpaRepository<Reservation, Long> {
+    List<Reservation> findByTruckId(Long truckId);
+}
