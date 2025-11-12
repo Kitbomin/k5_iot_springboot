@@ -190,15 +190,16 @@ public class WebSecurityConfig {
                             .requestMatchers(HttpMethod.GET,    "/api/v1/articles/**").permitAll()
 
                             // Products 접근 제어
-                            .requestMatchers(HttpMethod.GET,    "api/v1/products/**").permitAll()
-                            .requestMatchers(HttpMethod.POST,   "api/v1/products/**").hasRole("ADMIN")
-                            .requestMatchers(HttpMethod.PUT,   "api/v1/products/**").hasRole("ADMIN")
+                            .requestMatchers(HttpMethod.GET,    "/api/v1/products/**").permitAll()
+                            .requestMatchers(HttpMethod.POST,   "/api/v1/products/**").hasRole("ADMIN")
+                            .requestMatchers(HttpMethod.PUT,   "/api/v1/products/**").hasRole("ADMIN")
 
                             // Stocks 접근 제어
-                            .requestMatchers(HttpMethod.GET,    "api/v1/stocks/**").permitAll()
-                            .requestMatchers(HttpMethod.POST,   "api/v1/stocks/**").hasRole("ADMIN")
-                            .requestMatchers(HttpMethod.PUT,   "api/v1/stocks/**").hasAnyRole("ADMIN", "MANAGER")
+                            .requestMatchers(HttpMethod.GET,    "/api/v1/stocks/**").permitAll()
+                            .requestMatchers(HttpMethod.POST,   "/api/v1/stocks/**").hasRole("ADMIN")
+                            .requestMatchers(HttpMethod.PUT,   "/api/v1/stocks/**").hasAnyRole("ADMIN", "MANAGER")
 
+                            .requestMatchers(HttpMethod.GET,    "/api/v1/trucks/**").permitAll()
                             // Orders 접근 제어
 //                            .requestMatchers(HttpMethod.GET,   "api/v1/orders/{orderId}/**").hasAnyRole("ADMIN")
 //                            .requestMatchers(HttpMethod.GET,    "api/v1/stocks/**").permitAll()
